@@ -1,0 +1,41 @@
+server:
+  port: 9001
+  servlet:
+    context-path: /identity
+spring:
+  #  kafka:
+  #    bootstrap-servers: "${HOST_IP_ADDRESS:localhost}:9092"
+  #    consumer:
+  #      group-id: ${KAFKA_GROUP_ID:default-group}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/identity?createDatabaseIfNotExist=true}
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    username: root
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+      profile-service:
+        url: http://localhost:9002/profile
+jwt:
+  expiration-access-token: 3000
+  expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
+  secret-key-access-token: TuAnD3pZa1Jyl3use1=/ChT3uaD1PZa4V0ick+T84IABv
+  secret-key-refresh-token: Ty@nDzaiHc23grw3@/Tr0NgVt23Ym+145hjgRtBn9fv6y
+
+#management:
+#  tracing:
+#    enabled: true
+#    sampling:
+#      rate: 1.0
+#  zipkin:
+#    tracing:
+#      endpoint: http://localhost:9411/api/v2/spans

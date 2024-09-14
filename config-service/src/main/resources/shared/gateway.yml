@@ -1,0 +1,30 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: identity
+          uri: lb://identity
+          predicates:
+            - Path=/identity/**
+        - id: profile
+          uri: lb://profile
+          predicates:
+            - Path=/profile/**
+server:
+  port: 8080
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+logging:
+  level:
+    com.netflix.eureka: OFF
+    com.netflix.discovery: OFF
+#management:
+#  tracing:
+#    enabled: true
+#    sampling:
+#      rate: 1.0
+#  zipkin:
+#    tracing:
+#      endpoint: http://localhost:9411/api/v2/spans
