@@ -8,16 +8,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("/info")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileController {
     private final ProfileService profileService;
 
-    @PostMapping("/")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("")
     public ResponseEntity<UserProfileResponse> newProfile(
             @Valid @RequestBody ProfileCreationRequest request
             ) {
@@ -26,6 +28,7 @@ public class ProfileController {
         return ResponseEntity.ok().body(response);
     }
 
+//    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/{username}")
     public ResponseEntity<UserProfileResponse> getProfile(
             @PathVariable String username

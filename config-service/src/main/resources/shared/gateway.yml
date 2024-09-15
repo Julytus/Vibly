@@ -2,12 +2,12 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: identity
-          uri: lb://identity
+        - id: identity-service
+          uri: lb://IDENTITY-SERVICE
           predicates:
             - Path=/identity/**
-        - id: profile
-          uri: lb://profile
+        - id: profile-service
+          uri: lb://profile-service
           predicates:
             - Path=/profile/**
 server:

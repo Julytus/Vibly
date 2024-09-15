@@ -14,6 +14,8 @@ import com.julytus.IdentityService.services.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -24,5 +26,10 @@ public class UserController {
     public ResponseEntity<UserResponse> getUserById(@PathVariable("userId") Long userId) throws DataNotFoundException {
         User user = userService.getUserById(userId);
         return ResponseEntity.ok().body(UserResponseMapper.fromUser(user));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }
