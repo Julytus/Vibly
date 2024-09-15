@@ -9,8 +9,10 @@
         <outputRelativeToContentRoot value="true" />
         <module name="IdentityService" />
         <module name="Apigateway" />
+        <module name="DiscoveryServer" />
         <module name="ProfileService" />
         <module name="discovery-server" />
+        <module name="profileService" />
         <module name="ConfigServer" />
       </profile>
     </annotationProcessing>
@@ -19,9 +21,11 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Apigateway" options="-parameters" />
       <module name="ConfigServer" options="-parameters" />
+      <module name="DiscoveryServer" options="-parameters" />
       <module name="IdentityService" options="-parameters" />
       <module name="ProfileService" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
+      <module name="profileService" options="-parameters" />
     </option>
   </component>
 </project>

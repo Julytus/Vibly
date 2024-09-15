@@ -43,7 +43,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> login(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
         String token = authService.login(loginRequest);
-        User user = userService.getUserDetailsFromAccessToken(token);
+        User user = userService.findByUsername(loginRequest.getUsername());
         Token jwtToken = tokenService.addToken(user, token);
 
         LoginResponse loginResponse = fromUserAndToken(user, jwtToken);
@@ -53,7 +53,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .maxAge(expirationRefreshToken)
-                //                .domain("")
+                //.domain("")
                 .build();
 
         return ResponseEntity.ok()
@@ -67,7 +67,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseObject> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        log.info("Call /register");
+        log.info("REGISTER {}", registerRequest);
         if (!registerRequest.getRetypePassword().equals(registerRequest.getPassword())) {
             return ResponseEntity.badRequest()
                     .body(ResponseObject.builder()

@@ -58,4 +58,9 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleIdException(Exception e) {
         return new ErrorResponse("BAD REQUEST", HttpStatus.BAD_REQUEST, Collections.singletonList(e.getMessage()));
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
+        return new ErrorResponse("Forbidden!!!", HttpStatus.FORBIDDEN, Collections.singletonList(ex.getMessage()));
+    }
 }
