@@ -22,6 +22,11 @@ public class RegisterRequest {
     @JsonProperty("password")
     String password;
 
+    @JsonProperty("first_name")
+    String firstName;
+    @JsonProperty("last_name")
+    String lastName;
+
     @NotBlank(message = "Retype password cannot be blank!")
     @JsonProperty("retype_password")
     String retypePassword;

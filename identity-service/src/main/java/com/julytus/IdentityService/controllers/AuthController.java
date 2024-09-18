@@ -1,21 +1,23 @@
 package com.julytus.IdentityService.controllers;
 
-import com.julytus.IdentityService.models.dto.request.IntrospectRequest;
-import com.julytus.IdentityService.models.dto.response.IntrospectResponse;
-import jakarta.validation.Valid;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.julytus.IdentityService.mappers.UserResponseMapper;
+import com.julytus.IdentityService.models.dto.request.IntrospectRequest;
 import com.julytus.IdentityService.models.dto.request.LoginRequest;
 import com.julytus.IdentityService.models.dto.request.RegisterRequest;
+import com.julytus.IdentityService.models.dto.response.IntrospectResponse;
 import com.julytus.IdentityService.models.dto.response.LoginResponse;
 import com.julytus.IdentityService.models.dto.response.ResponseObject;
 import com.julytus.IdentityService.models.entity.Token;
@@ -25,7 +27,9 @@ import com.julytus.IdentityService.services.TokenService;
 import com.julytus.IdentityService.services.UserService;
 import com.julytus.IdentityService.utils.JwtTokenUtil;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/auth")
@@ -40,6 +44,7 @@ public class AuthController {
     @Value("${jwt.expiration-refresh-token}")
     private int expirationRefreshToken;
 
+    //http://localhost:9001/identity/auth/login
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> login(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
         String token = authService.login(loginRequest);
@@ -65,6 +70,7 @@ public class AuthController {
                         .build());
     }
 
+    //http://localhost:9001/identity/auth/register
     @PostMapping("/register")
     public ResponseEntity<ResponseObject> register(@Valid @RequestBody RegisterRequest registerRequest) {
         log.info("REGISTER {}", registerRequest);

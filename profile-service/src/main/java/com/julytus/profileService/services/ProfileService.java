@@ -25,4 +25,8 @@ public class ProfileService {
                 .orElseThrow(() -> new DataNotFoundException("Profile not exist, username: " + username));
         return modelMapper.map(userProfile, UserProfileResponse.class);
     }
+
+    public void deleteAllProfiles() {
+        userProfileRepository.deleteAll();
+    }
 }
