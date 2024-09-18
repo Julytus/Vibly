@@ -8,17 +8,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/info")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Slf4j
 public class ProfileController {
     private final ProfileService profileService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<UserProfileResponse> newProfile(
             @Valid @RequestBody ProfileCreationRequest request
@@ -35,5 +33,11 @@ public class ProfileController {
     ) throws DataNotFoundException {
         UserProfileResponse response = profileService.getProfile(username);
         return ResponseEntity.ok().body(response);
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteAllProfiles() {
+        profileService.deleteAllProfiles();
+        return ResponseEntity.noContent().build();
     }
 }

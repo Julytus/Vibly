@@ -4,9 +4,11 @@ import com.julytus.IdentityService.constants.PredefinedRole;
 import com.julytus.IdentityService.exceptions.DataNotFoundException;
 import com.julytus.IdentityService.models.dto.request.IntrospectRequest;
 import com.julytus.IdentityService.models.dto.request.LoginRequest;
+import com.julytus.IdentityService.models.dto.request.ProfileCreationRequest;
 import com.julytus.IdentityService.models.dto.request.RegisterRequest;
 import com.julytus.IdentityService.models.dto.response.IntrospectResponse;
 import com.julytus.IdentityService.models.entity.User;
+import com.julytus.IdentityService.repositories.HttpClient.ProfileClient;
 import com.julytus.IdentityService.repositories.RoleRepository;
 import com.julytus.IdentityService.repositories.UserRepository;
 import com.julytus.IdentityService.utils.JwtTokenUtil;
@@ -30,6 +32,7 @@ public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfileClient profileClient;
 
     public String login(LoginRequest loginRequest) throws Exception {
         User currentUser = userService.findByUsername(loginRequest.getUsername());
@@ -72,13 +75,13 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
 
-//        ProfileCreationRequest request = ProfileCreationRequest
-//                .builder()
-//                .username(registerRequest.getUsername())
-//                .firstName(registerRequest.getFirstName())
-//                .lastName(registerRequest.getLastName())
-//                .build();
-//        profileClient.createProfile(request);
+        ProfileCreationRequest request = ProfileCreationRequest
+                .builder()
+                .username(registerRequest.getUsername())
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .build();
+        profileClient.createProfile(request);
 
         return userRepository.save(newUser);
     }
