@@ -20,7 +20,6 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/auth/login",
-            "/auth/logout",
             "/auth/refresh",
             "/auth/register",
             "/auth/introspect"
@@ -34,7 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_ENDPOINTS)
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/**").hasRole(PredefinedRole.ADMIN_ROLE)
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(
                         (oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                 .authenticationEntryPoint(customAuthenticationEntryPoint)

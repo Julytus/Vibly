@@ -1,17 +1,14 @@
 package com.julytus.IdentityService.controllers;
 
+import com.julytus.IdentityService.utils.SecurityUtil;
+import com.julytus.IdentityService.utils.UserLoginInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.julytus.IdentityService.mappers.UserResponseMapper;
 import com.julytus.IdentityService.models.dto.request.IntrospectRequest;
@@ -30,6 +27,8 @@ import com.julytus.IdentityService.utils.JwtTokenUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -120,6 +119,45 @@ public class AuthController {
                         .data(loginResponse)
                         .status(HttpStatus.OK)
                         .build());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ResponseObject> logout() {
+        try {
+            Optional<UserLoginInfo> userLoginInfo = SecurityUtil.getCurrentUserLogin();
+            if (userLoginInfo.isEmpty()) {
+                throw new Exception("Invalid token");
+            }
+
+            String username = userLoginInfo.get().getUsername();
+            String token = userLoginInfo.get().getToken();
+            if (!jwtTokenUtil.verifyToken(token)) {
+                throw new Exception("Invalid token");
+            }
+            User user = userService.findByUsername(username);
+
+            tokenService.revokeUserToken(user, token);
+
+            ResponseCookie clearRefreshTokenCookie = ResponseCookie.from("refresh_token", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(0)
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, clearRefreshTokenCookie.toString())
+                    .body(ResponseObject.builder()
+                            .message("Logged out successfully")
+                            .status(HttpStatus.OK)
+                            .build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ResponseObject.builder()
+                            .message("Invalid token")
+                            .status(HttpStatus.UNAUTHORIZED)
+                            .build());
+        }
     }
 
     private LoginResponse fromUserAndToken(User user, Token token) {
