@@ -78,4 +78,15 @@ public class TokenService {
         existingToken.setRefreshExpirationDate(LocalDateTime.now().plusSeconds(expirationRefreshToken));
         return tokenRepository.save(existingToken);
     }
+
+    @Transactional
+    public void revokeUserToken(User user, String tokenToRevoke) throws DataNotFoundException {
+        Token token = tokenRepository.findByTokenAndUser(tokenToRevoke, user)
+                .orElseThrow(() -> new DataNotFoundException("Token not found"));
+
+        token.setRevoked(true);
+        token.setExpired(true);
+
+        tokenRepository.save(token);
+    }
 }

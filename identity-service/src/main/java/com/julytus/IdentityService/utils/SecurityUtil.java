@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,9 +17,16 @@ public class SecurityUtil {
      *
      * @return the login of the current user.
      */
-    public static Optional<String> getCurrentUserLogin() {
+    public static Optional<UserLoginInfo> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+        Authentication authentication = securityContext.getAuthentication();
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            String username = jwtAuthenticationToken.getName();
+            String token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
+            return Optional.of(new UserLoginInfo(username, token));
+        }
+        return Optional.empty();
     }
 
     private static String extractPrincipal(Authentication authentication) {

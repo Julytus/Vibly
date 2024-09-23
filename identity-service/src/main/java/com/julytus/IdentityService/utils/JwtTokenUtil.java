@@ -133,24 +133,6 @@ public class JwtTokenUtil {
         return new SecretKeySpec(keyBytes, 0, keyBytes.length, JWT_ALGORITHM.getName());
     }
 
-    public String extractUsernameFromAccessToken(String token) {
-        try {
-            Jwt jwt = accessTokenJwtDecoder.decode(token);
-            return jwt.getClaimAsString("username");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to extract username from token: " + e.getMessage());
-        }
-    }
-
-//    public String extractSubjectRefreshToken(String token) {
-//        try {
-//            Jwt jwt = refreshTokenJwtDecoder.decode(token);
-//            return jwt.getSubject();
-//        } catch (Exception e) {
-//            throw new RuntimeException("Failed to extract subject from token: " + e.getMessage());
-//        }
-//    }
-
     public boolean verifyToken(String token) {
         try {
             accessTokenJwtDecoder.decode(token);
