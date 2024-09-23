@@ -422,7 +422,7 @@ video {
   display: none;
 }
 
-[type='text'],[type='email'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select {
+[type='text'],[type='username'],[type='url'],[type='password'],[type='number'],[type='date'],[type='datetime-local'],[type='month'],[type='search'],[type='tel'],[type='time'],[type='week'],[multiple],textarea,select {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
@@ -439,7 +439,7 @@ video {
   --tw-shadow: 0 0 #0000;
 }
 
-[type='text']:focus, [type='email']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus {
+[type='text']:focus, [type='username']:focus, [type='url']:focus, [type='password']:focus, [type='number']:focus, [type='date']:focus, [type='datetime-local']:focus, [type='month']:focus, [type='search']:focus, [type='tel']:focus, [type='time']:focus, [type='week']:focus, [multiple]:focus, textarea:focus, select:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
   --tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
@@ -597,11 +597,11 @@ select {
   /* 256px */
   --color-primary:        2 132 199;
   /* bg-sky-600 */
-  --color-primary-soft:   224 242 254;
+  --color-primary-soft:   51 65 80;
   /* bg-sky-100 */
-  --color-secondery:      241 245 249;
+  --color-secondery:      51 65 80;
   /* bg-slate-100 */
-  --color-bgbody:         249 250 251;
+  --color-bgbody:         15 23 42;
   /* bg-slate-100/60 */
 }
 
@@ -636,7 +636,7 @@ body {
 
 input[type='text'],
     input[type='password'],
-    input[type='email'], 
+    input[type='username'], 
     input[type='number'],
     input[type='url'],
     input[type='date'],
@@ -654,14 +654,14 @@ input[type='text'],
   color: rgb(75 85 99 / var(--tw-text-opacity)) !important;
 }
 
-input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='email']::-moz-placeholder, input[type='number']::-moz-placeholder, input[type='url']::-moz-placeholder, input[type='date']::-moz-placeholder, select::-moz-placeholder, textarea::-moz-placeholder {
+input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='username']::-moz-placeholder, input[type='number']::-moz-placeholder, input[type='url']::-moz-placeholder, input[type='date']::-moz-placeholder, select::-moz-placeholder, textarea::-moz-placeholder {
   --tw-text-opacity: 1 !important;
   color: rgb(75 85 99 / var(--tw-text-opacity)) !important;
 }
 
 input[type='text']::placeholder,
     input[type='password']::placeholder,
-    input[type='email']::placeholder, 
+    input[type='username']::placeholder, 
     input[type='number']::placeholder,
     input[type='url']::placeholder,
     input[type='date']::placeholder,
@@ -674,7 +674,7 @@ input[type='text']::placeholder,
 @media (prefers-color-scheme: dark) {
   input[type='text'],
     input[type='password'],
-    input[type='email'], 
+    input[type='username'], 
     input[type='number'],
     input[type='url'],
     input[type='date'],
@@ -683,13 +683,13 @@ input[type='text']::placeholder,
     color: rgb(255 255 255 / 0.9) !important;
   }
 
-  input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='email']::-moz-placeholder, input[type='number']::-moz-placeholder, input[type='url']::-moz-placeholder, input[type='date']::-moz-placeholder, select::-moz-placeholder, textarea::-moz-placeholder {
+  input[type='text']::-moz-placeholder, input[type='password']::-moz-placeholder, input[type='username']::-moz-placeholder, input[type='number']::-moz-placeholder, input[type='url']::-moz-placeholder, input[type='date']::-moz-placeholder, select::-moz-placeholder, textarea::-moz-placeholder {
     color: rgb(255 255 255 / 0.9) !important;
   }
 
   input[type='text']::placeholder,
     input[type='password']::placeholder,
-    input[type='email']::placeholder, 
+    input[type='username']::placeholder, 
     input[type='number']::placeholder,
     input[type='url']::placeholder,
     input[type='date']::placeholder,
@@ -701,7 +701,7 @@ input[type='text']::placeholder,
 
 input[type='text'],
     input[type='password'],
-    input[type='email'],
+    input[type='username'],
     input[type='number'],
     input[type='url'],
     input[type='date'],
@@ -724,7 +724,7 @@ input[type='text'],
 @media (prefers-color-scheme: dark) {
   input[type='text'],
     input[type='password'],
-    input[type='email'],
+    input[type='username'],
     input[type='number'],
     input[type='url'],
     input[type='date'],
@@ -746,7 +746,7 @@ input[type='text'],
 
 input[type='text']:focus,
     input[type='password']:focus,
-    input[type='email']:focus,
+    input[type='username']:focus,
     input[type='number']:focus,
     input[type='url']:focus,
     input[type='date']:focus,
