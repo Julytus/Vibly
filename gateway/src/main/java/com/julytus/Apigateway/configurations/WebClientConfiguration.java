@@ -1,6 +1,8 @@
 package com.julytus.Apigateway.configurations;
 
-import com.julytus.Apigateway.repositories.IdentityClient;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -10,14 +12,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import java.util.List;
+import com.julytus.Apigateway.repositories.IdentityClient;
 
 @Configuration
 public class WebClientConfiguration {
     @Bean
-    WebClient webClient(){
+    WebClient webClient(@Value("${IDENTITY_SERVICE_URL:http://localhost:9001/identity}") String identityServiceUrl){
         return WebClient.builder()
-                .baseUrl("http://localhost:8080/identity")
+                .baseUrl(identityServiceUrl)
                 .build();
     }
 

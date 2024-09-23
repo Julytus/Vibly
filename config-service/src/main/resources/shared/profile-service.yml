@@ -1,14 +1,14 @@
 server:
-  port: 9002
+  port: ${PROFILE_SERVICE_PORT:9002}
   servlet:
     context-path: /profile
 spring:
-  #  kafka:
-  #    bootstrap-servers: "${HOST_IP_ADDRESS:localhost}:9092"
-  #    consumer:
-  #      group-id: ${KAFKA_GROUP_ID:default-group}
+  # kafka:
+  #   bootstrap-servers: "${HOST_IP_ADDRESS:localhost}:9092"
+  #   consumer:
+  #     group-id: ${KAFKA_GROUP_ID:default-group}
   neo4j:
-    uri: bolt://localhost:7687
+    uri: ${NEO4J_URI:bolt://localhost:7687}
     authentication:
-      username: neo4j
-      password: 12345678
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:12345678}

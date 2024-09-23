@@ -10,7 +10,7 @@ services:
     volumes:
       - ./config-service/src/main/resources/shared:/app/shared
     networks:
-      - socbook-network
+      - vibly-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
       interval: 10s
@@ -30,7 +30,7 @@ services:
       - CONFIG_SERVER_URL=http://config-service:8888
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
-      - socbook-network
+      - vibly-network
   identity-service:
     build:
       context: ./identity-service
@@ -38,10 +38,10 @@ services:
     depends_on:
       config-service:
         condition: service_started
-      discovery-server:
-        condition: service_started
       mysql8:
         condition: service_healthy
+      discovery-server:
+        condition: service_started
     ports:
       - "9001:9001"
     environment:
@@ -54,7 +54,33 @@ services:
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
-      - socbook-network
+      - vibly-network
+
+  # profile-service:
+  profile-service:
+    build:
+      context: ./profile-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-service:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+      neo4j:
+        condition: service_healthy
+    ports:
+      - "9002:9002"
+    environment:
+      - PROFILE_SERVICE_PORT=9002
+      - CONFIG_SERVER_URL=http://config-service:8888
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USERNAME=neo4j
+      - NEO4J_PASSWORD=12345678
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - vibly-network
+
   #ProfileDb
   neo4j:
     image: neo4j:5
@@ -67,8 +93,32 @@ services:
     volumes:
       - neo4j_data:/data  # Lưu trữ dữ liệu Neo4j
     networks:
-      - socbook-network
+      - vibly-network
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "12345678", "RETURN 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
+#Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    depends_on:
+      config-service:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_SERVER_URL=http://config-service:8888
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
+      - IDENTITY_SERVICE_URL=http://identity-service:9001/identity
+    networks:
+      - vibly-network
   #IndentityDB
   mysql8:
     image: mysql:8.1.0
@@ -86,7 +136,7 @@ services:
     ports:
       - "3306:3306"
     networks:
-      - socbook-network
+      - vibly-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -100,7 +150,7 @@ services:
     depends_on:
       - mysql8
     networks:
-      - socbook-network
+      - vibly-network
 
   # zookeeper:
   #   image: confluentinc/cp-zookeeper:7.4.6
@@ -112,7 +162,7 @@ services:
   #     ZOOKEEPER_CLIENT_PORT: 2181
   #     ZOOKEEPER_TICK_TIME: 2000
   #   networks:
-  #     - socbook-network
+  #     - vibly-network
 
   # broker:
   #   image: confluentinc/cp-server:7.4.6
@@ -142,7 +192,7 @@ services:
   #     CONFLUENT_METRICS_ENABLE: 'true'
   #     CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
   #   networks:
-  #     - socbook-network
+  #     - vibly-network
 
   # control-center:
   #   image: confluentinc/cp-enterprise-control-center:7.7.0
@@ -160,7 +210,7 @@ services:
   #     CONFLUENT_METRICS_TOPIC_REPLICATION: 1
   #     PORT: 9021
   #   networks:
-  #     - socbook-network
+  #     - vibly-network
   # zipkin:
   #   image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
   #   container_name: zipkin
@@ -177,34 +227,11 @@ services:
   #   # Uncomment to enable debug logging
   #   # command: --logging.level.zipkin2=DEBUG
 
-  profile-service:
-    build:
-      context: ./profile-service
-      dockerfile: Dockerfile
-    depends_on:
-      config-service:
-        condition: service_started
-      discovery-server:
-        condition: service_started
-      neo4j:
-        condition: service_healthy
-    ports:
-      - "9002:9002"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - CONFIG_SERVER_URL=http://config-service:8888
-      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - SPRING_NEO4J_URI=bolt://neo4j:7687
-      - SPRING_NEO4J_AUTHENTICATION_USERNAME=neo4j
-      - SPRING_NEO4J_AUTHENTICATION_PASSWORD=12345678
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-    networks:
-      - socbook-network
 
 volumes:
   neo4j_data:
     driver: local
 
 networks:
-  socbook-network:
+  vibly-network:
     driver: bridge
