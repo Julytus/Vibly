@@ -12,7 +12,7 @@ FROM amazoncorretto:21.0.4
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
-EXPOSE 8080
+# EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
 #docker build -t service:0.0.1 .
