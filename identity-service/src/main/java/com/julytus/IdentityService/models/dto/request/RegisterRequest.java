@@ -14,9 +14,13 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class RegisterRequest {
-    @NotBlank(message = "Email is required!")
+    @NotBlank(message = "username is required!")
     @JsonProperty("username")
     String username;
+
+    @NotBlank(message = "email is required!")
+    @JsonProperty("email")
+    String email;
 
     @NotBlank(message = "Password cannot be blank!")
     @JsonProperty("password")

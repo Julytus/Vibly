@@ -12,7 +12,9 @@ import com.julytus.IdentityService.repositories.HttpClient.ProfileClient;
 import com.julytus.IdentityService.repositories.RoleRepository;
 import com.julytus.IdentityService.repositories.UserRepository;
 import com.julytus.IdentityService.utils.JwtTokenUtil;
+import com.julytus.event.dto.NotificationEvent;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -33,6 +35,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProfileClient profileClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public String login(LoginRequest loginRequest) throws Exception {
         User currentUser = userService.findByUsername(loginRequest.getUsername());
@@ -68,6 +71,7 @@ public class AuthService {
                 .username(registerRequest.getUsername())
                 .password(registerRequest.getPassword())
                 .role(roleRepository.getRoleByName(PredefinedRole.USER_ROLE))
+                .email(registerRequest.getEmail())
                 .build();
 
         // passwordEncode
@@ -82,6 +86,17 @@ public class AuthService {
                 .lastName(registerRequest.getLastName())
                 .build();
         profileClient.createProfile(request);
+
+        NotificationEvent event = NotificationEvent
+                .builder()
+                .channel("EMAIL")
+                .recipient(registerRequest.getEmail())
+                .recipientName(registerRequest.getFirstName() + " " + registerRequest.getLastName())
+                .subject("Welcome to Vibly Social Network")
+                .build();
+
+        // Publish message to kafka
+        kafkaTemplate.send("vibly-notification-email", event);
 
         return userRepository.save(newUser);
     }
