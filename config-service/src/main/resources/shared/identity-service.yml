@@ -1,12 +1,13 @@
 server:
-  port: 9001
+  port: ${IDENTITY_SERVICE_PORT:9001}
   servlet:
     context-path: /identity
 spring:
-  #  kafka:
-  #    bootstrap-servers: "${HOST_IP_ADDRESS:localhost}:9092"
-  #    consumer:
-  #      group-id: ${KAFKA_GROUP_ID:default-group}
+  kafka:
+    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/identity?createDatabaseIfNotExist=true}
     driverClassName: "com.mysql.cj.jdbc.Driver"
