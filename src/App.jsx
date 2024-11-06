@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -10,29 +10,91 @@ import Footer from "./components/footer";
 import { Outlet } from "react-router-dom";
 import Feed from "./pages/feed";
 import Register from "./pages/register";
+import { fetchProfile } from "./services/api";
+import { useDispatch } from 'react-redux';
+import { doGetAccountAction } from './redux/account/accountSlice';
+import Loading from './components/loading';
+import { useSelector } from 'react-redux';
+import Error404 from './components/error404';
+import Admin from './pages/admin';
+import ProtectedRoute from './components/ProtectedRoute';
+import Sidebar from './components/sidebar';
+import SettingPanel from './components/SettingPanel';
+import ProfilePage from './pages/profile';
+import MiniChatBox from './components/minichatbox';
 
 const Layout = () => {
   return (
     <div className="layout-app">
-      <Header />
-      <Outlet />
-      <Footer />
+      <Sidebar />
+      <main className="main-content">
+        <Header />
+        <Outlet />
+        <Footer />
+        <SettingPanel />
+        <MiniChatBox />
+      </main>
     </div> 
   )
 }
-
+const LayoutAdmin = () => {
+  const userRole = useSelector(state => state.account.userProfile.role);
+  const isAdminRoute = window.location.pathname.startsWith("/admin");
+  return (
+    <div className="layout-app">
+      {userRole === "ROLE_ADMIN" && isAdminRoute && <Header />}
+      <Outlet />
+      {userRole === "ROLE_ADMIN" && isAdminRoute && <Footer />}
+    </div> 
+  )
+}
 export default function App() {
+  const dispatch = useDispatch();
+  const isLoading = useSelector(state => state.account.isLoading);
+  const getProfile = async () => {
+    if (window.location.pathname == "/login" ||
+      window.location.pathname == "/register") {
+      return;
+    }
+    const response = await fetchProfile();
+    console.log("get Profile", response);
+    if (response) {
+      dispatch(doGetAccountAction(response));
+    } else {
+      dispatch(doLogoutAction());
+    }
+  }
+
+  useEffect(() => {
+    const fetchProfileInfo = async () => {
+      await getProfile();
+    }
+    fetchProfileInfo();
+  }, []);
+
   const router = createBrowserRouter([
+    {
+      path: "/admin",
+      element: <LayoutAdmin />,
+      errorElement: <Error404 />,
+      children: [
+        {index: true, element: 
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        },
+      ]
+    },
     {
       path: "/",
       element: <Layout />,
-      errorElement: <h1>Error</h1>,
+      errorElement: <Error404 />,
 
       children: [
         {index: true, element: <Feed />},
         {
-          path: "contact",
-          element: <Contact />,
+          path: "profile/:id",
+          element: <ProfilePage />,
         }
       ]
     },
@@ -43,12 +105,16 @@ export default function App() {
     {
       path: "register",
       element: <Register />,
-    }
+    },
+
   ]);
 
   return (
     <>
-      <RouterProvider router={router} />
+      {!isLoading || 
+        window.location.pathname === "/login" ||
+        window.location.pathname === "/register" ? 
+        <RouterProvider router={router} /> : <Loading />}
     </>
   )
 }

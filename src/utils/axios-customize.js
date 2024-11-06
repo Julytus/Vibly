@@ -18,13 +18,39 @@ instance.interceptors.request.use(
     }
 );
 
+const handleRefreshToken = async () => {
+    const response = await instance.get('/identity/auth/refresh');
+    if(response.data) {
+        return response.data.data.token;
+    }
+    else return null;
+}
+
+const NO_RETRY_HEADERS = 'x-no-retry';
+
 instance.interceptors.response.use(
     response => {
         // Do something with response data
         return response;
     },
-    error => {
+    async error => {
         // Do something with response error
+        if (error.config 
+            && error.response 
+            && error.response.status === 401 
+            && !error.config.headers[NO_RETRY_HEADERS]) {
+            const newAccessToken = await handleRefreshToken();
+            error.config.headers[NO_RETRY_HEADERS] = true;
+            if(newAccessToken) {
+                error.config.headers['Authorization'] = `Bearer ${newAccessToken}`;
+                localStorage.setItem('token', newAccessToken);
+                return instance.request(error.config);
+            }
+            else {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            }
+        }
         return Promise.reject(error);
     }
 );

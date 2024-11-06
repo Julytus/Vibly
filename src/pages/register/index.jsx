@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import '../../styles/style.css';
-import ImageSlider from '../../components/ImageSlider';
-import logo from '../../public/images/logo.png';
-import logoLight from '../../public/images/logo-light.png';
+import { Link, useNavigate } from 'react-router-dom';
+import SliderSign from '../slidersign';
 import { callRegister } from '../../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
     username: '',
     password: '',
     retype_password: '',
-    first_name: '',
-    last_name: '',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState('');
-  const navigate = useNavigate();
-  
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
-  
+
+  const navigate = useNavigate();
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.retype_password) {
@@ -30,94 +33,124 @@ const Register = () => {
       return;
     }
     setLoading(true);
-  try {
-    const response = await callRegister(formData);
-    console.log(response.data);
-    setSuccess('Registration successful! Redirecting to login page...');
-    setTimeout(() => {
-      navigate('/login'); // Redirect to login page after showing success message
-    }, 2000); // 2 seconds delay for success message
-  } catch (error) {
-    setError(error.response?.data?.message || 'An error occurred during registration');
-    setLoading(false);
-  }
+    try {
+      const response = await callRegister(formData);
+      console.log(response.data);
+      setSuccess('Registration successful! Redirecting to login page...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (error) {
+      setError(error.response?.data?.message || 'An error occurred during registration');
+      setLoading(false);
+    }
   };
-  
+
   return (
-    <div className="sm:flex">
-      <div className="relative lg:w-[580px] md:w-96 w-full p-10 min-h-screen bg-white shadow-xl flex items-center pt-10 dark:bg-slate-900 z-10">
-        <div className="w-full lg:max-w-sm mx-auto space-y-10">
-          <a href="#">
-            <img src={logo} className="w-28 absolute top-10 left-10 dark:hidden" alt="" />
-            <img src={logoLight} className="w-28 absolute top-10 left-10 hidden dark:!block" alt="" />
-          </a>
-  
-          <div>
-            <h2 className="text-2xl font-semibold mb-1.5"> Sign up to get started </h2>
-            <p className="text-sm text-gray-700 font-normal">If you already have an account, <Link to="/login" className="text-blue-700">Login here!</Link></p>
-          </div>
-  
-          <form onSubmit={handleSubmit} className="space-y-7 text-sm text-black font-medium dark:text-white">
-            <div className="grid grid-cols-2 gap-4 gap-y-7">
-              <div>
-                <label htmlFor="first_name" className="">First name</label>
-                <div className="mt-2.5">
-                  <input id="first_name" name="first_name" type="text" required
-                    className="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                    onChange={handleChange} value={formData.first_name} />
-                </div>
-              </div>
-  
-              <div>
-                <label htmlFor="last_name" className="">Last name</label>
-                <div className="mt-2.5">
-                  <input id="last_name" name="last_name" type="text" required
-                    className="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                    onChange={handleChange} value={formData.last_name} />
-                </div>
-              </div>
-  
-              <div className="col-span-2">
-                <label htmlFor="username" className="">Username</label>
-                <div className="mt-2.5">
-                  <input id="username" name="username" type="text" required
-                    className="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                    onChange={handleChange} value={formData.username} />
-                </div>
-              </div>
-  
-              <div>
-                <label htmlFor="password" className="">Password</label>
-                <div className="mt-2.5">
-                  <input id="password" name="password" type="password" required
-                    className="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                    onChange={handleChange} value={formData.password} />
-                </div>
-              </div>
-  
-              <div>
-                <label htmlFor="retype_password" className="">Confirm Password</label>
-                <div className="mt-2.5">
-                  <input id="retype_password" name="retype_password" type="password" required
-                    className="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                    onChange={handleChange} value={formData.retype_password} />
-                </div>
-              </div>
-  
-              {error && <div className="col-span-2 text-red-500">{error}</div>}
-              {success && <div className="col-span-2 text-green-500">{success}</div>}
-  
-              <div className="col-span-2">
-                <button type="submit" className="button bg-primary text-white w-full" disabled={loading}>
-                  {loading ? 'Loading...' : 'Get Started'}
-                </button>
+    <div className="wrapper">
+      <section className="sign-in-page">
+        <div className="container-fluid">
+          <div className="row align-items-center">
+            <SliderSign />
+            <div className="col-md-6">
+              <div className="sign-in-from text-center">
+                <Link to="/" className="d-inline-flex align-items-center justify-content-center gap-2">
+                  <h2 className="logo-title" style={{ fontSize: '40px', fontWeight: 'bold' }}>Vibly</h2>
+                </Link>
+                <p className="mt-3 font-size-16">Welcome to Vibly, a platform to connect with<br /> the social world</p>
+                <form className="mt-5" onSubmit={handleSubmit}>
+                  <div className="row mb-3">
+                    <div className="col-6">
+                      <div className="form-group text-start">
+                        <h6 className="form-label fw-bold">First Name</h6>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          placeholder="First Name"
+                          name="first_name"
+                          value={formData.first_name}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="form-group text-start">
+                        <h6 className="form-label fw-bold">Last Name</h6>
+                        <input 
+                          type="text" 
+                          className="form-control" 
+                          placeholder="Last Name"
+                          name="last_name"
+                          value={formData.last_name}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="form-group text-start mb-3">
+                    <h6 className="form-label fw-bold">Username</h6>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      placeholder="Username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="form-group text-start mb-3">
+                    <h6 className="form-label fw-bold">Email Address</h6>
+                    <input 
+                      type="email" 
+                      className="form-control" 
+                      placeholder="Your Email Address"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="row mb-3">
+                    <div className="col-6">
+                      <div className="form-group text-start">
+                        <h6 className="form-label fw-bold">Password</h6>
+                        <input 
+                          type="password" 
+                          className="form-control" 
+                          placeholder="Password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-6">
+                      <div className="form-group text-start">
+                        <h6 className="form-label fw-bold">Confirm Password</h6>
+                        <input 
+                          type="password" 
+                          className="form-control" 
+                          placeholder="Confirm Password"
+                          name="retype_password"
+                          value={formData.retype_password}
+                          onChange={handleInputChange}
+                        />
+                      </div>
+                    </div>
+                    {error && <div className="col-span-2 text-red-500" style={{ fontSize: '14px', color: 'red' }}>{error}</div>}
+                    {success && <div className="col-span-2 text-green-500" style={{ fontSize: '14px', color: 'green' }}>{success}</div>}
+                  </div>
+                  <button type="submit" className="btn btn-primary mt-4 fw-semibold text-uppercase w-100" disabled={loading}>
+                    {loading ? 'Loading...' : 'Sign up'}
+                  </button>
+                  <h6 className="mt-5">
+                    Already Have An Account ? <Link to="/login">Login</Link>
+                  </h6>
+                </form>
               </div>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-  
-      <ImageSlider />
+      </section>
     </div>
   );
 };

@@ -13,6 +13,7 @@
     "@ant-design/icons": "5.0.1",
     "@reduxjs/toolkit": "1.9.3",
     "axios": "^1.7.7",
+    "fslightbox-react": "^1.7.6",
     "ionicons": "^7.4.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -20,6 +21,7 @@
     "react-router-dom": "6.9.0",
     "simplebar": "^6.2.7",
     "simplebar-react": "^3.2.6",
+    "swiper": "^11.1.14",
     "uikit": "^3.21.12"
   },
   "devDependencies": {
