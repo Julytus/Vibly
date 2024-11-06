@@ -9,5 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserLoginInfo {
     private String username;
+    private String role;
     private String token;
 }

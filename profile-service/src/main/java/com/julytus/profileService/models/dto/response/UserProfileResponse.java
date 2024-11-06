@@ -1,5 +1,6 @@
 package com.julytus.profileService.models.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -13,11 +14,14 @@ import java.time.LocalDate;
 
 public class UserProfileResponse {
     String id;
-    String userId;
     String username;
     String email;
+    @JsonProperty("first_name")
     String firstName;
+    @JsonProperty("last_name")
     String lastName;
     LocalDate dob;
     String city;
+    String avatar;
+    String role;
 }

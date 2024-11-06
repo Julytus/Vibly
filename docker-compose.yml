@@ -1,4 +1,15 @@
 services:
+  #Redis
+  redis:
+    image: docker.io/redis:7.2.3
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - vibly-network
   #ProfileDb
   neo4j:
     image: neo4j:5

@@ -46,13 +46,9 @@ public class AuthController {
     //http://localhost:9001/identity/auth/login
     @PostMapping("/login")
     public ResponseEntity<ResponseObject> login(@Valid @RequestBody LoginRequest loginRequest) throws Exception {
-        String token = authService.login(loginRequest);
-        User user = userService.findByUsername(loginRequest.getUsername());
-        Token jwtToken = tokenService.addToken(user, token);
+        LoginResponse loginResponse = authService.login(loginRequest);
 
-        LoginResponse loginResponse = fromUserAndToken(user, jwtToken);
-
-        ResponseCookie resCookies = ResponseCookie.from("refresh_token", jwtToken.getRefreshToken())
+        ResponseCookie resCookies = ResponseCookie.from("refresh_token", loginResponse.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -97,7 +93,7 @@ public class AuthController {
 
     @GetMapping("/refresh")
     public ResponseEntity<ResponseObject> getRefreshToken(
-            @CookieValue(name = "refresh_token", defaultValue = "Hi!") String refresh_token) throws Exception {
+            @CookieValue(name = "refresh_token", defaultValue = "What do u want!") String refresh_token) throws Exception {
         Jwt decodedToken = jwtTokenUtil.checkValidRefreshToken(refresh_token);
         String username = decodedToken.getSubject();
         User currentUser = userService.findByUsername(username);

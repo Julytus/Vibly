@@ -23,4 +23,6 @@ public class LoginResponse {
     Long id;
     String username;
     String role;
+    @JsonProperty("user_profile")
+    UserProfileResponse userProfile;
 }

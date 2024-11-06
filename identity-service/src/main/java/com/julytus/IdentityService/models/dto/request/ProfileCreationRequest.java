@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileCreationRequest {
+    String email;
     String username;
     @JsonProperty("first_name")
     String firstName;
@@ -21,4 +22,5 @@ public class ProfileCreationRequest {
     String city;
     @JsonProperty("dob")
     LocalDate dateOfBirth;
+
 }
