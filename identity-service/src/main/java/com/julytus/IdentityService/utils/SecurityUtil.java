@@ -1,5 +1,6 @@
 package com.julytus.IdentityService.utils;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
@@ -22,9 +23,15 @@ public class SecurityUtil {
         Authentication authentication = securityContext.getAuthentication();
 
         if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Instant expiration = jwtAuthenticationToken.getToken().getExpiresAt();
+            if (expiration.isBefore(Instant.now())) {
+                return Optional.empty();
+            }
+
             String username = jwtAuthenticationToken.getName();
             String token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
-            return Optional.of(new UserLoginInfo(username, token));
+            String role = ((JwtAuthenticationToken) authentication).getToken().getClaims().get("role").toString();
+            return Optional.of(new UserLoginInfo(username, role, token));
         }
         return Optional.empty();
     }

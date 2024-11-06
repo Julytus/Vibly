@@ -21,10 +21,12 @@ public class UserProfile {
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     String id;
-
+    String email;
     String username;
     String firstName;
     String lastName;
     String city;
     LocalDate dateOfBirth;
+    String avatar;
+    String background;
 }

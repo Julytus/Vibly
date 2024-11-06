@@ -7,6 +7,9 @@ import com.julytus.IdentityService.models.dto.request.LoginRequest;
 import com.julytus.IdentityService.models.dto.request.ProfileCreationRequest;
 import com.julytus.IdentityService.models.dto.request.RegisterRequest;
 import com.julytus.IdentityService.models.dto.response.IntrospectResponse;
+import com.julytus.IdentityService.models.dto.response.LoginResponse;
+import com.julytus.IdentityService.models.dto.response.UserProfileResponse;
+import com.julytus.IdentityService.models.entity.Token;
 import com.julytus.IdentityService.models.entity.User;
 import com.julytus.IdentityService.repositories.HttpClient.ProfileClient;
 import com.julytus.IdentityService.repositories.RoleRepository;
@@ -36,8 +39,9 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final ProfileClient profileClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final TokenService tokenService;
 
-    public String login(LoginRequest loginRequest) throws Exception {
+    public LoginResponse login(LoginRequest loginRequest) throws Exception {
         User currentUser = userService.findByUsername(loginRequest.getUsername());
         if (!currentUser.isActive()) {
             throw new DataNotFoundException("User is locked");
@@ -50,7 +54,18 @@ public class AuthService {
             // authenticate with Java Spring security
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return jwtTokenUtil.createAccessToken(currentUser);
+
+            String token = jwtTokenUtil.createAccessToken(currentUser);
+
+            User user = userService.findByUsername(loginRequest.getUsername());
+            Token jwtToken = tokenService.addToken(user, token);
+
+            LoginResponse loginResponse = fromUserAndToken(user, jwtToken);
+            UserProfileResponse profile = profileClient.getProfile(loginRequest.getUsername());
+            profile.setRole(authentication.getAuthorities().iterator().next().getAuthority());
+            loginResponse.setUserProfile(profile);
+
+            return loginResponse;
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Wrong password");
         }
@@ -64,6 +79,9 @@ public class AuthService {
         String username = registerRequest.getUsername();
         if (userRepository.existsByUsername(username)) {
             throw new DataIntegrityViolationException("Username already exists");
+        }
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            throw new DataIntegrityViolationException("Email already exists");
         }
 
         User newUser = User.builder()
@@ -84,6 +102,7 @@ public class AuthService {
                 .username(registerRequest.getUsername())
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
+                .email(registerRequest.getEmail())
                 .build();
         profileClient.createProfile(request);
 
@@ -99,5 +118,16 @@ public class AuthService {
         kafkaTemplate.send("vibly-notification-email", event);
 
         return userRepository.save(newUser);
+    }
+
+    private LoginResponse fromUserAndToken(User user, Token token) {
+        return LoginResponse.builder()
+                .token(token.getToken())
+                .tokenType(token.getTokenType())
+                .refreshToken(token.getRefreshToken())
+                .username(user.getUsername())
+                .role(user.getAuthorities().toString())
+                .id(user.getId())
+                .build();
     }
 }
