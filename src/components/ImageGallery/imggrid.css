@@ -189,4 +189,57 @@
     background-color: currentColor;
     opacity: .5;
 }
+
+/* Sửa lại styles cho preview images */
+.selected-images .preview-image-container {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.selected-images .preview-image-container img {
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Sửa lại style cho nút remove */
+.selected-images .preview-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    padding-bottom: 4px;
+    transition: all 0.2s ease;
+    opacity: 0;  /* Ẩn nút mặc định */
+}
+
+/* Hiệu ứng hover */
+.selected-images .preview-image-container:hover .preview-delete-btn {
+    opacity: 1;  /* Hiện nút khi hover vào ảnh */
+}
+
+.selected-images .preview-delete-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
   

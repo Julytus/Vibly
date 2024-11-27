@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import PostCreation from './PostCreation';
 
 const Description = ({
-    posts,
-    currentPage,
-    totalPages,
     firstName,
     lastName,
     avatar,
@@ -49,12 +46,9 @@ const Description = ({
                 </div>
             </div>
             <PostCreation
-                posts={posts}
                 avatar={avatar}
                 firstName={firstName}
                 lastName={lastName}
-                currentPage={currentPage}
-                totalPages={totalPages}
                 userId={userId}
             />
         </div>

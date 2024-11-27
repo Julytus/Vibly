@@ -22,7 +22,7 @@ import Sidebar from './components/sidebar';
 import SettingPanel from './components/SettingPanel';
 import ProfilePage from './pages/profile';
 import MiniChatBox from './components/minichatbox';
-
+import Chat from './pages/chat';
 const Layout = () => {
   return (
     <div className="layout-app">
@@ -37,6 +37,7 @@ const Layout = () => {
     </div> 
   )
 }
+
 const LayoutAdmin = () => {
   const userRole = useSelector(state => state.account.userProfile.role);
   const isAdminRoute = window.location.pathname.startsWith("/admin");
@@ -105,6 +106,10 @@ export default function App() {
     {
       path: "register",
       element: <Register />,
+    },
+    {
+      path: "chat",
+      element: <Chat />,
     },
 
   ]);

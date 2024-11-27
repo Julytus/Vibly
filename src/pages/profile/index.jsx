@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProfileById, getAvatarById, getBackgroundById, getPostsByUserId } from '../../services/api';
-import { useDispatch } from 'react-redux';
+import { getProfileById, getAvatarById, getBackgroundById } from '../../services/api';
+import { useDispatch, useSelector } from 'react-redux';
 import { setInitialState } from '../../redux/slices/sidebarSlice';
 import Loading from '../../components/loading';
 import Error404 from '../../components/error404';
 import Description from './Description';
+import { openConversation } from '../../services/api';
 
 const ProfilePage = () => {
     const { id } = useParams();
@@ -13,10 +14,12 @@ const ProfilePage = () => {
     const [avatar, setAvatar] = useState(null);
     const [background, setBackground] = useState(null);
     const [loading1, setLoading1] = useState(true);
-    const [posts, setPosts] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
+    const { userProfile } = useSelector((state) => state.account);
     const dispatch = useDispatch();
+
+    const handleOpenConversation = async () => {
+        const conversation = await openConversation(userProfile.id, profile.id);
+    }
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -41,41 +44,6 @@ const ProfilePage = () => {
             fetchProfileData();
         }
     }, [id]);
-
-    useEffect(() => {
-        const fetchPosts = async () => {
-            if (id) {
-                try {
-                    const response = await getPostsByUserId(id, currentPage);
-                    console.log(response);
-                    setPosts(response.data);
-                    setTotalPages(response.total_pages);
-                } catch (error) {
-                    console.error('Error fetching posts:', error);
-                }
-            }
-        };
-        fetchPosts();
-    }, [id, currentPage]);
-
-    // const handlePostCreated = (post, isPlaceholder, removePlaceholderId = null) => {
-    //     if (removePlaceholderId) {
-    //         // Xóa placeholder post nếu có lỗi
-    //         setPosts(prevPosts => prevPosts.filter(p => p.id !== removePlaceholderId));
-    //         return;
-    //     }
-
-    //     if (isPlaceholder) {
-    //         // Thêm placeholder post vào đầu danh sách
-    //         setPosts(prevPosts => [post, ...prevPosts]);
-    //     } else {
-    //         // Thay thế placeholder bằng post thật hoặc thêm post mới
-    //         setPosts(prevPosts => {
-    //             const updatedPosts = prevPosts.filter(p => !p.id.toString().startsWith('temp_'));
-    //             return [post, ...updatedPosts];
-    //         });
-    //     }
-    // };
 
     useEffect(() => {
         // Set specific sidebar state for profile page
@@ -130,20 +98,25 @@ const ProfilePage = () => {
                                                         <h4 className="">{profile.first_name} {profile.last_name}</h4>
                                                         <span>{profile.followers || 0} followers</span>
                                                     </div>
-                                                    <div className="item4 ms-1">
-                                                        <div className="d-flex justify-content-between align-items-center ms-1 flex-wrap gap-2 gap-md-3">
-                                                            <div className="d-flex align-items-center">
-                                                                <span className="material-symbols-outlined writ-icon md-18">
-                                                                    send
-                                                                </span>
-                                                                <h6 className="ms-1">Write a message</h6>
+                                                    {
+                                                        id === userProfile.id ? "" : (
+                                                            <div className="item4 ms-1 cursor-pointer">
+                                                                <div className="d-flex justify-content-between align-items-center ms-1 flex-wrap gap-2 gap-md-3"
+                                                                onClick={handleOpenConversation}>
+                                                                    <div className="d-flex align-items-center">
+                                                                        <span className="material-symbols-outlined writ-icon md-18">
+                                                                        send
+                                                                    </span>
+                                                                    <h6 className="ms-1">Write a message</h6>
+                                                                </div>
+                                                                <button type="button" className="btn btn-primary btn-sm d-flex align-items-center">
+                                                                    <span className="material-symbols-outlined md-16">add</span>
+                                                                    Follow
+                                                                </button>
+                                                                </div>
                                                             </div>
-                                                            <button type="button" className="btn btn-primary btn-sm d-flex align-items-center">
-                                                                <span className="material-symbols-outlined md-16">add</span>
-                                                                Follow
-                                                            </button>
-                                                        </div>
-                                                    </div>
+                                                        )
+                                                    }
                                                 </div>
                                                 <div className="row">
                                                     <div className="col-lg-5">
@@ -212,24 +185,7 @@ const ProfilePage = () => {
                                 </div>
                             </div>
                         </div>
-                        {/* <div className="row">
-                            <div className="col-lg-12">
-                                <PostAndDes 
-                                    avatar={avatar}
-                                    firstName={profile.first_name}
-                                    lastName={profile.last_name}
-                                    posts={posts}
-                                    currentPage={currentPage}
-                                    totalPages={totalPages}
-                                    onPageChange={setCurrentPage}
-                                    onPostCreated={handlePostCreated}
-                                />
-                            </div>
-                        </div> */}
                         <Description 
-                            posts={posts}
-                            currentPage={currentPage}
-                            totalPages={totalPages}
                             firstName={profile.first_name}
                             lastName={profile.last_name}
                             avatar={avatar}

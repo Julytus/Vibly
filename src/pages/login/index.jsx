@@ -12,7 +12,6 @@ const Login = () => {
     password: 'admin',
   });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
@@ -26,7 +25,7 @@ const Login = () => {
       localStorage.setItem('token', response.data.token);
       const profile = await fetchProfile();
       dispatch(doLoginAction(profile));
-      navigate('/');
+      window.location.href = '/';
     } catch (error) {
       setError(error.response?.data?.message || 'An error occurred during login');
     }

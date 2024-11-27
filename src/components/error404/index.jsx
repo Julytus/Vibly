@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import lightImage from '../../styles/images/error/404-light.png';
-import darkImage from '../../styles/images/error/404.png';
+import lightImage from '/images/error/404-light.png';
+import darkImage from '/images/error/404.png';
 
 const Error404 = () => {
   return (

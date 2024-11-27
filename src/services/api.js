@@ -1,5 +1,7 @@
 import axios from "../utils/axios-customize";
 
+const token = localStorage.getItem('token');
+
 export const callRegister = async ({ email, username, password, first_name, last_name, retype_password }) => {
     try {
         const response = await axios.post('/identity/auth/register', {
@@ -34,7 +36,7 @@ export const callLogout = async () => {
     try {
         const response = await axios.post('/identity/auth/logout', {}, {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         return response;
@@ -48,7 +50,7 @@ export const fetchProfile = async () => {
     try {
         const response = await axios.get('/profile/users', {
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${token}`
             }
         });
         return response.data;
@@ -110,7 +112,7 @@ export const createPost = async (postData) => {
       content: postData.content
     }, {
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${token}`
       }
     });
     console.log("2. Created post response:", response.data);
@@ -166,4 +168,68 @@ export const getPostImage = async (imageUrl) => {
     console.error('getPostImage, Error:', error);
     throw error;
   }
+};
+
+//conversation
+
+export const openConversation = async (senderId, receiverId) => {
+    try {
+        const response = await axios.post('/chat/conversation', {
+            sender_id: senderId,
+            receiver_id: receiverId
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API openConversation, Error:', error);
+        throw error;
+    }
+};
+
+export const getConversationsByUserId = async (userId, page = 1, size = 10) => {
+    try {
+        const response = await axios.get('/chat/conversation', {
+            params: { page, size, userId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API getConversationsByUserId, Error:', error);
+        throw error;
+    }
+};
+
+//message
+
+export const getMessagesByConversationId = async (conversationId, page = 1, size = 10) => {
+    try {
+        const response = await axios.get(`/chat/message/${conversationId}`, { params: { page, size } });
+        return response.data;
+    } catch (error) {
+        console.error('API getMessagesByConversationId, Error:', error);
+        throw error;
+    }
+};
+
+export const sendMessage = async (senderId, content, conversationId) => {
+    try {
+        const response = await axios.post('/chat/message', {
+            sender_id: senderId,
+            content: content,
+            conversation_id: conversationId
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API sendMessage, Error:', error);
+        throw error;
+    }
 };

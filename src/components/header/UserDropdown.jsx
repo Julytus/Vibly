@@ -1,7 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { doLogoutAction } from '../../redux/account/accountSlice';
+import { callLogout } from '../../services/api';
+import { useDispatch } from 'react-redux';
 
-const UserDropdown = ({ user, avatarUrl, onLogout }) => {
+const UserDropdown = ({ user, avatarUrl }) => {
+  const dispatch = useDispatch();
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+        await callLogout();
+        dispatch(doLogoutAction());
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <li className="nav-item dropdown user-dropdown">
       <a href="#" className="d-flex align-items-center dropdown-toggle" id="drop-down-arrow" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -11,7 +27,7 @@ const UserDropdown = ({ user, avatarUrl, onLogout }) => {
         <div className="card shadow-none m-0">
           <div className="card-header">
             <div className="header-title">
-              <h5 className="mb-0">Hello {user?.firstName + ' ' + user?.lastName || 'User'}</h5>
+              <h5 className="mb-0">Hello {user?.first_name + ' ' + user?.last_name || 'User'}</h5>
             </div>
           </div>
           <div className="card-body p-0">
@@ -39,7 +55,7 @@ const UserDropdown = ({ user, avatarUrl, onLogout }) => {
                 <h6 className="mb-0 h6">Privacy Settings</h6>
               </div>
             </Link>
-            <a href="#" className="d-flex align-items-center iq-sub-card" onClick={onLogout}>
+            <a href="#" className="d-flex align-items-center iq-sub-card" onClick={handleLogout}>
               <span className="material-symbols-outlined">login</span>
               <div className="ms-3">
                 <h6 className="mb-0 h6">Sign out</h6>

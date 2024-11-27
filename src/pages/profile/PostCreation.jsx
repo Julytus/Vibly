@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
-import img7 from '../../styles/images/small/07.png';
-import img8 from '../../styles/images/small/08.png';
-import img9 from '../../styles/images/small/09.png';
+import img7 from '/images/small/07.png';
+import img8 from '/images/small/08.png';
+import img9 from '/images/small/09.png';
 import { createPost } from '../../services/api';
 import PostProfile from './PostProfile';
-import { useParams } from 'react-router-dom';
+import '../../components/ImageGallery/imggrid.css';
 
 
 const PostCreation = ({
-    posts,
-    currentPage,
-    totalPages,
     avatar,
     firstName,
     lastName,
@@ -20,6 +17,8 @@ const PostCreation = ({
     const [selectedImages, setSelectedImages] = useState([]);
     const [previewImages, setPreviewImages] = useState([]);
     const [loading2, setLoading2] = useState(false);
+    const [newPost, setNewPost] = useState(null);
+    const [postLoading, setPostLoading] = useState(false);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -48,6 +47,8 @@ const PostCreation = ({
     const handleCreatePost = async (e) => {
         e.preventDefault();
 
+        setPostLoading(true);
+
         // Reset form và đóng modal
         setPostContent('');
         setSelectedImages([]);
@@ -67,12 +68,40 @@ const PostCreation = ({
             };
             const newPost = await createPost(formData);
             setLoading2(false);
+
+            // Cập nhật bài post với dữ liệu thật từ server
+            setNewPost({
+                ...newPost,
+                isNew: true
+            });
+            setPostLoading(false);
+
             console.log("newPost:", newPost);
 
         } catch (error) {
             console.error('Error creating post:', error);
             setLoading2(false);
+
+
         }
+    };
+
+    const removeImage = (index) => {
+        // Xóa ảnh khỏi mảng selectedImages
+        setSelectedImages(prevImages => {
+            const newImages = [...prevImages];
+            newImages.splice(index, 1);
+            return newImages;
+        });
+
+        // Xóa ảnh preview
+        setPreviewImages(prevPreviews => {
+            const newPreviews = [...prevPreviews];
+            // Giải phóng URL object để tránh rò rỉ bộ nhớ
+            URL.revokeObjectURL(newPreviews[index]);
+            newPreviews.splice(index, 1);
+            return newPreviews;
+        });
     };
 
     return (
@@ -177,17 +206,14 @@ const PostCreation = ({
                                     <div className="selected-images mt-3">
                                         <div className="d-flex flex-wrap gap-2">
                                             {previewImages.map((preview, index) => (
-                                                <div key={index} className="position-relative" style={{ width: '100px', height: '100px' }}>
+                                                <div key={index} className="preview-image-container">
                                                     <img
                                                         src={preview}
                                                         alt={`preview ${index}`}
-                                                        className="img-fluid rounded"
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                     />
                                                     <button
-                                                        className="btn btn-sm btn-danger position-absolute top-0 end-0"
+                                                        className="preview-delete-btn"
                                                         onClick={() => removeImage(index)}
-                                                        style={{ padding: '2px 6px' }}
                                                     >
                                                         ×
                                                     </button>
@@ -252,7 +278,8 @@ const PostCreation = ({
                 lastName = {lastName}
                 avatar = {avatar}
                 userId = {userId}
-                posts = {posts}
+                newPost = {newPost}
+                postLoading = {postLoading}
             />
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import loader from '../../styles/images/page-img/page-load-loader.gif';
+import loader from '/images/page-img/page-load-loader.gif';
 import { getPostsByUserId } from '../../services/api';
 import ImageGallery from '../../components/ImageGallery/ImageGallery';
 
@@ -7,18 +7,15 @@ const PostProfile = ({
     firstName,
     lastName,
     avatar,
-    posts: initialPosts,
-    userId
+    userId,
+    newPost,
+    postLoading
 }) => {
-    const [posts, setPosts] = useState(initialPosts || []);
-    const [page, setPage] = useState(1);
+    const [posts, setPosts] = useState([]);
+    const [page, setPage] = useState(0);
     const [loading3, setLoading3] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const loaderRef = useRef(null);
-
-    useEffect(() => {
-        setPosts(initialPosts || []);
-    }, [initialPosts]);
 
     const loadMorePosts = async () => {
         if (loading3 || !hasMore) return;
@@ -27,7 +24,7 @@ const PostProfile = ({
             setLoading3(true);
             const nextPage = page + 1;
             // Delay 1s cho loading, để test hiển thị loader
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // await new Promise(resolve => setTimeout(resolve, 1000));
             
             const response = await getPostsByUserId(userId, nextPage);
             
@@ -72,6 +69,26 @@ const PostProfile = ({
         };
     }, [loading3, hasMore, page, userId]);
 
+    useEffect(() => {
+        if (newPost) {
+            console.log('Original newPost:', newPost);
+            if (postLoading) {
+                return;
+            }
+            setPosts(prevPosts => {
+                const formattedNewPost = {
+                    id: newPost.id,
+                    content: newPost.content,
+                    created_at: newPost.createdAt,
+                    image_urls: newPost.imageUrls,
+                    isNew: true
+                };
+                console.log('Formatted newPost:', formattedNewPost);
+                return [formattedNewPost, ...prevPosts];
+            });
+        }
+    }, [newPost, postLoading]);
+
     return (
         <>
             {posts && posts.map((post) => (
@@ -87,7 +104,7 @@ const PostProfile = ({
                                         <h5>{firstName} {lastName}</h5>
                                         <small className="d-flex align-items-center">
                                             <i className="material-symbols-outlined md-14 me-1">schedule</i> 
-                                            {new Date(post.created_at).toLocaleString()}
+                                            {post.isNew ? 'Just now' : new Date(post.created_at).toLocaleString()}
                                         </small>
                                         <p>{post.content}</p>
                                         {post.image_urls && <ImageGallery imageUrls={post.image_urls} />}

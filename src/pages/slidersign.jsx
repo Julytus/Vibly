@@ -4,9 +4,9 @@ import { Autoplay, Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
-import img1 from '../styles/images/login/1.jpg';
-import img2 from '../styles/images/login/2.jpg';
-import img3 from '../styles/images/login/3.jpg';
+import img1 from '/images/login/1.jpg';
+import img2 from '/images/login/2.jpg';
+import img3 from '/images/login/3.jpg';
 
 const SliderSign = () => {
   const slides = [

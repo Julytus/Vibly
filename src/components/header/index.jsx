@@ -11,8 +11,6 @@ import Notifications from './Notifications';
 import UserDropdown from './UserDropdown';
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
   const user = useSelector(state => state.account.userProfile);
   const [avatarUrl, setAvatarUrl] = useState('');
 
@@ -25,14 +23,6 @@ const Header = () => {
     };
     fetchAvatar();
   }, [user]);
-
-  const handleLogout = async () => {
-    const response = await callLogout();
-    if (response && response.data) {
-      dispatch(doLogoutAction());
-      navigate('/login');
-    }
-  };
 
   return (
     <div className="iq-top-navbar border-bottom">
@@ -72,7 +62,6 @@ const Header = () => {
             <UserDropdown 
               user={user}
               avatarUrl={avatarUrl}
-              onLogout={handleLogout}
             />
           </ul>
         </div>
