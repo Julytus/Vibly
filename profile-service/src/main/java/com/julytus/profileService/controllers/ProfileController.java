@@ -11,13 +11,17 @@ import com.julytus.profileService.utils.UserLoginInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.*;
@@ -28,6 +32,7 @@ import static org.springframework.http.ResponseEntity.*;
 @Slf4j
 public class ProfileController {
     private final ProfileService profileService;
+    private final ModelMapper modelMapper;
 
     @PostMapping("")
     public ResponseEntity<UserProfileResponse> newProfile(
@@ -38,11 +43,22 @@ public class ProfileController {
         return ok().body(response);
     }
 
+    @PostMapping("/avatar/{userId}")
+    public ResponseEntity<UserProfileResponse> updateAvatar(
+            @RequestBody MultipartFile file,
+            @PathVariable String userId
+    ) throws DataNotFoundException, IOException {
+        UserProfile userProfile = profileService.setAvatar(userId, file);
+        UserProfileResponse response = modelMapper.map(userProfile, UserProfileResponse.class);
+        return ok().body(response);
+    }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<UserProfileResponse> getProfileById(
             @PathVariable String id
     ) throws DataNotFoundException {
-        UserProfileResponse response = profileService.getProfileById(id);
+        UserProfile userProfile = profileService.getProfileById(id);
+        UserProfileResponse response = modelMapper.map(userProfile, UserProfileResponse.class);
         return ok().body(response);
     }
 
@@ -114,7 +130,7 @@ public class ProfileController {
 
     @GetMapping("/basic/id/{id}")
     public ResponseEntity<BasicProfile> getBasicProfileById(@PathVariable String id) throws DataNotFoundException {
-        return ResponseEntity.ok(profileService.getBasicProfile(id));
+        return ResponseEntity.ok(profileService.getBasicProfileById(id));
     }
 
     @DeleteMapping("")

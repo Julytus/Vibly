@@ -20,7 +20,7 @@ public class LoginResponse {
 
     String tokenType = "Bearer";
     // user's detail
-    Long id;
+    String id;
     String username;
     String role;
     @JsonProperty("user_profile")

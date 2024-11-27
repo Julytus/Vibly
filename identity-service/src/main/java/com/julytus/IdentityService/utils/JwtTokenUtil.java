@@ -136,9 +136,6 @@ public class JwtTokenUtil {
     public boolean verifyToken(String token) {
         try {
             accessTokenJwtDecoder.decode(token);
-
-            Token existingToken = tokenRepository.findByToken(token);
-            return existingToken != null && !existingToken.isRevoked();// Token is valid
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
@@ -151,7 +148,7 @@ public class JwtTokenUtil {
             // Handle other JWT related exceptions
             logger.error("JWT token is invalid: {}", e.getMessage());
         }
-        return false;
+        return true;
     }
 
 }

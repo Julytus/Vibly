@@ -22,7 +22,7 @@ public class UserService {
         return userRepository.findByUsername(username).orElseThrow(() -> new DataNotFoundException("User not found"));
     }
 
-    public User getUserById(Long id) throws DataNotFoundException {
+    public User getUserById(String id) throws DataNotFoundException {
         return userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("User not found!"));
     }
 

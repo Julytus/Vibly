@@ -31,10 +31,9 @@ public class FileUtil {
         }
     }
     //Update Image(Avatar or Background)
-    public static void updateImage(UserProfile userProfile,
+    public static String updateImage(UserProfile userProfile,
                                    MultipartFile file,
-                                   String uploadsFolder,
-                                   String type) throws IOException {
+                                   String uploadsFolder) throws IOException {
         validateImageFile(file);
 
         String fileName = userProfile.getId() + "_" + UUID.randomUUID() + "_" + StringUtils.cleanPath(
@@ -49,11 +48,7 @@ public class FileUtil {
         try (InputStream inputStream = file.getInputStream()) {
             Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
         }
-        if (Objects.equals(type, "avatar")) {
-            userProfile.setAvatar(fileName);
-        } else if (Objects.equals(type, "background")) {
-            userProfile.setBackground(fileName);
-        }
+        return fileName;
     }
 
 }

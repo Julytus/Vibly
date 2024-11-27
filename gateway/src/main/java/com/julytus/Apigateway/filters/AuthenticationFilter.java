@@ -36,7 +36,8 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/identity/auth/.*",
             "/profile/.*",
             "/notification/.*",
-            "/post/.*"
+            "/post/.*",
+            "/chat/.*"
     };
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

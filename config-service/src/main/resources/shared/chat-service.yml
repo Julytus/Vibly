@@ -1,0 +1,23 @@
+server:
+  port: ${CHAT_SERVICE_PORT:9005}
+  servlet:
+    context-path: /chat
+spring:
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://root:root@localhost:27017/chat_service?authSource=admin}
+#  redis:
+#    host: ${REDIS_HOST:localhost}
+#    port: ${REDIS_PORT:6379}
+#    timeout: 60000
+#  cache:
+#    type: redis
+#  kafka:
+#    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
+#    consumer:
+#      group-id: ${KAFKA_GROUP_ID:notification-group}
+#      auto-offset-reset: earliest
+#      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+#      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+#      properties:
+#        spring.json.trusted.packages: "*"

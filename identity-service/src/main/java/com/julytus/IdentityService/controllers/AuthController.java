@@ -125,14 +125,10 @@ public class AuthController {
                 throw new Exception("Invalid token");
             }
 
-            String username = userLoginInfo.get().getUsername();
             String token = userLoginInfo.get().getToken();
             if (!jwtTokenUtil.verifyToken(token)) {
                 throw new Exception("Invalid token");
             }
-            User user = userService.findByUsername(username);
-
-            tokenService.revokeUserToken(user, token);
 
             ResponseCookie clearRefreshTokenCookie = ResponseCookie.from("refresh_token", "")
                     .httpOnly(true)
