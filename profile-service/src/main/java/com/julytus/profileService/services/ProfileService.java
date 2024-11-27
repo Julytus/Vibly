@@ -6,10 +6,14 @@ import com.julytus.profileService.models.dto.request.ProfileCreationRequest;
 import com.julytus.profileService.models.dto.response.UserProfileResponse;
 import com.julytus.profileService.models.entity.UserProfile;
 import com.julytus.profileService.repositories.UserProfileRepository;
+import com.julytus.profileService.utils.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,16 +29,23 @@ public class ProfileService {
         return modelMapper.map(userProfile, UserProfileResponse.class);
     }
 
+    public UserProfile setAvatar(String userId, MultipartFile file)
+            throws DataNotFoundException, IOException {
+        UserProfile userProfile = getProfileById(userId);
+        String uploadsFolder = "uploads/avatar";
+        userProfile.setAvatar(FileUtil.updateImage(userProfile, file, uploadsFolder));
+        return userProfileRepository.save(userProfile);
+    }
+
     public UserProfileResponse getProfileByUsername(String username) throws DataNotFoundException {
         UserProfile userProfile = userProfileRepository.findByUsername(username)
                 .orElseThrow(() -> new DataNotFoundException("Profile not exist, username: " + username));
         return modelMapper.map(userProfile, UserProfileResponse.class);
     }
 
-    public UserProfileResponse getProfileById(String id) throws DataNotFoundException {
-        UserProfile userProfile = userProfileRepository.findById(id)
+    public UserProfile getProfileById(String id) throws DataNotFoundException {
+        return userProfileRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Profile not exist, id: " + id));
-        return modelMapper.map(userProfile, UserProfileResponse.class);
     }
 
     public String getAvatarByIb(String id) {

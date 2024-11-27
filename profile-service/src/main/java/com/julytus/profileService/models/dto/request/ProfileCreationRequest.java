@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProfileCreationRequest {
+    String id;
     String email;
     String username;
     @JsonProperty("first_name")

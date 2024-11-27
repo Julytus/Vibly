@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 public class UserResponse extends BaseResponse {
     @JsonProperty("id")
-    private Long id;
+    private String id;
 
     @JsonProperty("is_active")
     private boolean active;

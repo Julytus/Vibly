@@ -23,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable("userId") Long userId) throws DataNotFoundException {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("userId") String userId) throws DataNotFoundException {
         User user = userService.getUserById(userId);
         return ResponseEntity.ok().body(UserResponseMapper.fromUser(user));
     }

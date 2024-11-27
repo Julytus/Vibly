@@ -27,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +76,7 @@ public class AuthService {
         return IntrospectResponse.builder().valid(isValid).build();
     }
 
+    @Transactional
     public User register(RegisterRequest registerRequest) {
         String username = registerRequest.getUsername();
         if (userRepository.existsByUsername(username)) {
@@ -97,8 +99,11 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(password);
         newUser.setPassword(encodedPassword);
 
+        User savedUser = userRepository.save(newUser);
+
         ProfileCreationRequest request = ProfileCreationRequest
                 .builder()
+                .id(savedUser.getId())
                 .username(registerRequest.getUsername())
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
@@ -117,7 +122,7 @@ public class AuthService {
         // Publish message to kafka
         kafkaTemplate.send("vibly-notification-email", event);
 
-        return userRepository.save(newUser);
+        return userRepository.save(savedUser);
     }
 
     private LoginResponse fromUserAndToken(User user, Token token) {

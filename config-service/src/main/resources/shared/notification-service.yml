@@ -16,7 +16,7 @@ spring:
     name: notification-service
   data:
     mongodb:
-      url: ${SPRING_DATA_MONGODB_URI:mongodb://root:root@localhost:27017/notification-service?authSecure=admin}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://root:root@localhost:27017/notification_service?authSource=admin}
 notification:
   email:
     url: https://api.brevo.com

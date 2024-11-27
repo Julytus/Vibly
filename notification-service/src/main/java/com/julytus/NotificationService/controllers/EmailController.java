@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EmailController {
-    EmailService emailService;
+    private final EmailService emailService;
 
     @PostMapping("/email/send")
-    ResponseEntity<EmailResponse> sendEmail(
+    public ResponseEntity<EmailResponse> sendEmail(
             @RequestBody SendEmailRequest request) throws Exception {
         return ResponseEntity.ok(emailService.sendEmail(request));
     }
