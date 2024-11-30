@@ -12,12 +12,17 @@ spring:
 #    timeout: 60000
 #  cache:
 #    type: redis
-#  kafka:
-#    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
+  kafka:
+    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
 #    consumer:
-#      group-id: ${KAFKA_GROUP_ID:notification-group}
+#      group-id: ${KAFKA_GROUP_ID:chat-group}
 #      auto-offset-reset: earliest
 #      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 #      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-#      properties:
-#        spring.json.trusted.packages: "*"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "*"
+jwt:
+  secret-key-access-token: TuAnD3pZa1Jyl3use1/ChT3uaD1PZa4V0ick+T84IABvc

@@ -18,4 +18,6 @@ public class ConversationRequest {
     @NotNull(message = "senderId is null!")
     @JsonProperty("receiver_id")
     String receiverId;
+
+    String token;
 }

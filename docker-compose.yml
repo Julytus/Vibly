@@ -132,6 +132,8 @@ services:
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
       - vibly-network
+    volumes:
+      - ./uploads:/app/uploads
   notification-service:
     build:
       context: ./notification-service
@@ -143,10 +145,13 @@ services:
       - "9003:9003"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+      - NOTIFICATION_SERVICE_PORT=9003
       - KAFKA_SERVERS=kafka:9092
+      - KAFKA_GROUP_ID=notification-group
       - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/notification-service?authSource=admin
       - CONFIG_SERVER_URL=http://config-service:8888
       - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
+      - brevo-apikey=${BREVO_API_KEY}
     networks:
       - vibly-network
     healthcheck:
@@ -242,10 +247,62 @@ services:
   #   # Uncomment to enable debug logging
   #   # command: --logging.level.zipkin2=DEBUG
 
+  chat-service:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      config-service:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    ports:
+      - "9005:9005"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CHAT_SERVICE_PORT=9005
+      - CONFIG_SERVER_URL=http://config-service:8888
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
+      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/chat_service?authSource=admin
+      - KAFKA_SERVERS=kafka:9092
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - vibly-network
+    volumes:
+      - ./uploads:/app/uploads
+
+  socket-service:
+    build:
+      context: ./socket-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-service:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+      kafka:
+        condition: service_started
+    ports:
+      - "9006:9006"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SOCKET_SERVICE_PORT=9006
+      - CONFIG_SERVER_URL=http://config-service:8888
+      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
+      - KAFKA_SERVERS=kafka:9092
+      - KAFKA_GROUP_ID=chat-group
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+    networks:
+      - vibly-network
+
 volumes:
   neo4j_data:
     driver: local
   mongodb_data:
+    driver: local
+  uploads_data:
     driver: local
 
 

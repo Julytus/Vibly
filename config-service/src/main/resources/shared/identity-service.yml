@@ -29,7 +29,7 @@ feign:
 jwt:
   expiration-access-token: 3000
   expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
-  secret-key-access-token: TuAnD3pZa1Jyl3use1=/ChT3uaD1PZa4V0ick+T84IABv
+  secret-key-access-token: TuAnD3pZa1Jyl3use1/ChT3uaD1PZa4V0ick+T84IABvc
   secret-key-refresh-token: Ty@nDzaiHc23grw3@/Tr0NgVt23Ym+145hjgRtBn9fv6y
 
 #management:

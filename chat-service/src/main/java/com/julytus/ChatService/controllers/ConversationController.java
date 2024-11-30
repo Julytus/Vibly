@@ -1,5 +1,6 @@
 package com.julytus.ChatService.controllers;
 
+import com.julytus.ChatService.exceptions.DataNotFoundException;
 import com.julytus.ChatService.models.dto.request.ConversationRequest;
 import com.julytus.ChatService.models.dto.response.PageResponse;
 import com.julytus.ChatService.models.entity.Conversation;
@@ -19,14 +20,26 @@ public class ConversationController {
         return ResponseEntity.ok(conversation);
     }
 
-    @GetMapping("")
-    ResponseEntity<PageResponse<Conversation>> getPostsByUserId(
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-            @RequestParam(value = "userId") String userId
-    ){
-        System.out.println("Received userId: " + userId);
-        return ResponseEntity.ok(conversationService.findConversationsByUserId(page, size, userId));
+    @GetMapping("/{conversationId}")
+    public ResponseEntity<Conversation> getConversationById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String conversationId)
+            throws DataNotFoundException {
+        String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        Conversation conversation = conversationService.findById( conversationId);
+        conversationService.verifyUserAccess(jwtToken, conversation);
+        return ResponseEntity.ok(conversation);
+    }
+
+    @GetMapping
+    public PageResponse<Conversation> getConversations(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String userId
+    ) {
+        String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+        return conversationService.findConversationsByUserId(jwtToken, page, size, userId);
     }
 
 }
