@@ -189,6 +189,20 @@ export const openConversation = async (senderId, receiverId) => {
     }
 };
 
+export const getConversationById = async (conversationId) => {
+    try {
+        const response = await axios.get(`/chat/conversation/${conversationId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API getConversationById, Error:', error);
+        throw error;
+    }
+};
+
 export const getConversationsByUserId = async (userId, page = 1, size = 10) => {
     try {
         const response = await axios.get('/chat/conversation', {

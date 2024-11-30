@@ -7,8 +7,6 @@ import Loading from '../../../components/loading';
 const ChatSidebar = (
     { activeConversationId, 
         onConversationClick, 
-        setAvatarActiveConversation, 
-        setInfoActiveConversation, 
         userProfile 
     }) => {
     const [conversations, setConversations] = useState([]);
@@ -27,7 +25,7 @@ const ChatSidebar = (
             }
         }
         fetchConversations();
-    }, [userProfile.id, activeConversationId, onConversationClick]);
+    }, [userProfile.id]);
 
     if (loading) {
         return <Loading />;
@@ -69,8 +67,6 @@ const ChatSidebar = (
                                 currentUserId={userProfile.id}
                                 isActive={activeConversationId === conversation.id}
                                 onConversationClick={onConversationClick}
-                                setAvatarActiveConversation={setAvatarActiveConversation}
-                                setInfoActiveConversation={setInfoActiveConversation}
                             />
                         ))}
                         {/* Add more chat items here */}

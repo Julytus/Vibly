@@ -75,7 +75,7 @@ const ChatBody = ({ messages: initialMessages, currentUserId, myAvatar, otherAva
             className="card-body chat-body bg-body"
             ref={chatBodyRef}
             onScroll={handleScroll}
-            style={{ overflowY: 'auto', maxHeight: 'calc(100vh - 75px - 140px)' }}
+            style={{ overflowY: 'auto'}}
         >
             {/* Loading indicator at top */}
             {loading && (

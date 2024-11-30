@@ -111,7 +111,10 @@ export default function App() {
       path: "chat",
       element: <Chat />,
     },
-
+    {
+      path: "chat/:activeConversationId",
+      element: <Chat />,
+    },
   ]);
 
   return (

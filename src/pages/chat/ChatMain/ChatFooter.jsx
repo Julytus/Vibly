@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { sendMessage } from '../../../services/api';
 
-const ChatFooter = ({ conversationId, currentUserId, onMessageSent }) => {
+const ChatFooter = ({ conversationId, currentUserId }) => {
     const [message, setMessage] = useState('');
 
     const handleSubmit = async (e) => {
@@ -9,11 +9,9 @@ const ChatFooter = ({ conversationId, currentUserId, onMessageSent }) => {
         if (!message.trim()) return;
 
         try {
-            const response = await sendMessage(currentUserId, message, conversationId);
+            await sendMessage(currentUserId, message, conversationId);
             // Clear input after sending
             setMessage('');
-            // Notify parent component about new message
-            onMessageSent(response);
         } catch (error) {
             console.error('Failed to send message:', error);
         }

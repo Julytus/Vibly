@@ -1,35 +1,32 @@
 import ChatSidebar from './ChatSidebar/ChatSidebar.jsx';
 import ChatMain from './ChatMain/ChatMain.jsx';
-import Header from '../../components/Header';
-import { useState } from 'react';
+import Header from '../../components/header';
 import { useSelector } from 'react-redux';
-
+import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import SettingPanel from '../../components/settingPanel';
 const Chat = () => {
     const { userProfile } = useSelector((state) => state.account);
-    const [activeConversationId, setActiveConversationId] = useState(null);
-    const [avatarActiveConversation, setAvatarActiveConversation] = useState(null);
-    const [infoActiveConversation, setInfoActiveConversation] = useState(null);
+    const { activeConversationId } = useParams() || null;
+    const navigate = useNavigate();
 
     const handleConversationClick = (conversationId) => {
-        setActiveConversationId(conversationId);
+        navigate(`/chat/${conversationId}`);
     };
 
     return (
         <>
             <Header />
+            <SettingPanel />
             <div className="iq-chat-theme">
                 <ChatSidebar 
                     activeConversationId={activeConversationId}
                     onConversationClick={handleConversationClick}
-                    setAvatarActiveConversation={setAvatarActiveConversation}
-                    setInfoActiveConversation={setInfoActiveConversation}
                     userProfile={userProfile}
                 />
                 <ChatMain 
                     conversationId={activeConversationId}
                     userProfile={userProfile}
-                    avatarActiveConversation={avatarActiveConversation}
-                    infoActiveConversation={infoActiveConversation}
                 />
             </div>
         </>

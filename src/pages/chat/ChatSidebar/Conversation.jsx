@@ -7,8 +7,6 @@ const Conversation = ({
     currentUserId, 
     isActive, 
     onConversationClick, 
-    setAvatarActiveConversation,
-    setInfoActiveConversation 
 }) => {
     const [otherUser, setOtherUser] = useState(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
@@ -37,8 +35,6 @@ const Conversation = ({
     const handleConversationClick = async (e) => {
         e.preventDefault();
         onConversationClick(conversation.id);
-        setAvatarActiveConversation(avatarUrl);
-        setInfoActiveConversation(otherUser);
     }
 
     return (
