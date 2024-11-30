@@ -2,6 +2,7 @@ package com.julytus.ChatService.services;
 
 import com.julytus.ChatService.models.dto.response.PageResponse;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 public class MessageService {
     private final MessageRepository messageRepository;
     private final ConversationService conversationService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public Message sendMessage(MessageRequest request) throws DataNotFoundException {
         Conversation existingConversation = conversationService.findById(request.getConversationId());
@@ -36,6 +38,7 @@ public class MessageService {
                 .build();
 
         Message message = messageRepository.save(newMess);
+        kafkaTemplate.send("chat-messages", newMess);
         conversationService.updateLastMessage(existingConversation, message);
         return message;
     }

@@ -1,6 +1,8 @@
 package com.julytus.ChatService.exceptions;
 
-import com.julytus.ChatService.models.dto.response.ErrorResponse;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,8 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import com.julytus.ChatService.models.dto.response.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,5 +39,10 @@ public class GlobalExceptionHandler {
                         .status(HttpStatus.NOT_FOUND)
                         .message(exception.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorResponse.builder().status(HttpStatus.UNAUTHORIZED).message(exception.getMessage()).build());
     }
 }

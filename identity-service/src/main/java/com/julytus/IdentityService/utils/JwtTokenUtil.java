@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.julytus.IdentityService.models.entity.Token;
 import com.julytus.IdentityService.models.entity.User;
 import com.julytus.IdentityService.repositories.TokenRepository;
 import org.slf4j.Logger;

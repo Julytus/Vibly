@@ -15,6 +15,7 @@
         <module name="profileService" />
         <module name="NotificationService" />
         <module name="ConfigServer" />
+        <module name="SocketService" />
         <module name="notification-service" />
         <module name="ChatService" />
       </profile>
@@ -44,6 +45,7 @@
       <module name="NotificationService" options="-parameters" />
       <module name="PostService" options="-parameters" />
       <module name="ProfileService" options="-parameters" />
+      <module name="SocketService" options="-parameters" />
       <module name="discovery-server" options="-parameters" />
       <module name="notification-service" options="-parameters" />
       <module name="profileService" options="-parameters" />
