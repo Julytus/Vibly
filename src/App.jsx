@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   createBrowserRouter,
   RouterProvider,
@@ -23,6 +23,7 @@ import SettingPanel from './components/SettingPanel';
 import ProfilePage from './pages/profile';
 import MiniChatBox from './components/minichatbox';
 import Chat from './pages/chat';
+import { useWebSocket } from './hooks/useWebSocket';
 const Layout = () => {
   return (
     <div className="layout-app">
@@ -52,9 +53,14 @@ const LayoutAdmin = () => {
 export default function App() {
   const dispatch = useDispatch();
   const isLoading = useSelector(state => state.account.isLoading);
+  const userProfile = useSelector(state => state.account.userProfile);
+
+  // Sử dụng custom hook để quản lý WebSocket
+  useWebSocket(userProfile);
+
   const getProfile = async () => {
-    if (window.location.pathname == "/login" ||
-      window.location.pathname == "/register") {
+    if (window.location.pathname === "/login" ||
+      window.location.pathname === "/register") {
       return;
     }
     const response = await fetchProfile();

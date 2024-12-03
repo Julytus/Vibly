@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import * as api from '../../services/api';
+import { webSocketService } from '../../services/websocket';
 
 const initialState = {
   isAuthenticated: false,
@@ -46,6 +47,7 @@ export const accountSlice = createSlice({
         state.userProfile = action.payload;
       },
       doLogoutAction: (state) => {
+        webSocketService.disconnectAll();
         state.isAuthenticated = false;
         state.userProfile = null;
         localStorage.removeItem('token');

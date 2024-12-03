@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getBasicProfileById, getAvatarById } from '../../../services/api';
 import { dateHandler } from '../../../utils/date';
+import { webSocketService } from '../../../services/websocket';
 
 const Conversation = ({ 
     conversation, 
@@ -10,6 +11,7 @@ const Conversation = ({
 }) => {
     const [otherUser, setOtherUser] = useState(null);
     const [avatarUrl, setAvatarUrl] = useState(null);
+    const [isOnline, setIsOnline] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -20,13 +22,30 @@ const Conversation = ({
                 
                 const avatar = await getAvatarById(otherUserId);
                 setAvatarUrl(avatar);
+
+                // Kiểm tra trạng thái online ban đầu
+                setIsOnline(webSocketService.isUserActive(otherUserId));
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
         };
 
         fetchUserData();
-    }, [conversation, currentUserId]);
+
+        // Theo dõi thay đổi trạng thái online
+        const checkOnlineStatus = () => {
+            if (otherUser?.id) {
+                setIsOnline(webSocketService.isUserActive(otherUser.id));
+            }
+        };
+
+        // Đăng ký interval để kiểm tra trạng thái
+        const intervalId = setInterval(checkOnlineStatus, 2000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [conversation, currentUserId, otherUser?.id]);
 
     if (!otherUser) {
         return null;
@@ -50,7 +69,7 @@ const Conversation = ({
                         alt={`avatar-${otherUser.username}`} 
                         className="avatar-48 object-cover rounded-circle" 
                     />
-                    <div className="iq-profile-badge bg-success"></div>
+                    {isOnline && <div className="iq-profile-badge bg-success"></div>}
                 </div>
                 <div className="d-flex align-items-top w-100 iq-userlist-data">
                     <div className="d-flex flex-grow-1 flex-column">
@@ -63,9 +82,13 @@ const Conversation = ({
                             </span>
                         </div>
                         <div className="d-flex align-items-center gap-2">
-                            <p className="text-ellipsis short-1 flex-grow-1 font-size-14 mb-0">
+                            <p className={`text-ellipsis short-1 flex-grow-1 font-size-14 mb-0 
+                                ${conversation.lastMessage?.isUnread ? 'fw-bold' : ''}`}>
                                 {conversation.lastMessage?.content || 'Start a conversation'}
                             </p>
+                            {conversation.lastMessage?.isUnread && (
+                                <span className="badge bg-primary rounded-pill">New</span>
+                            )}
                         </div>
                     </div>
                 </div>

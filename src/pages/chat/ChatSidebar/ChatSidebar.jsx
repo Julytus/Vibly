@@ -1,6 +1,6 @@
 import OnlineUser from '../OnlineUser.jsx';
 import Conversation from './Conversation.jsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getConversationsByUserId } from '../../../services/api';
 import Loading from '../../../components/loading';
 
@@ -12,6 +12,35 @@ const ChatSidebar = (
     const [conversations, setConversations] = useState([]);
     const [loading, setLoading] = useState(true);
     
+    // Tách handler ra thành callback để tránh tạo lại mỗi lần render
+    const handleNewMessage = useCallback((notification) => {
+        console.log('[ChatSidebar] Processing new message:', notification);
+        setConversations(prevConversations => {
+            const updatedConversations = prevConversations.map(conv => {
+                if (conv.id === notification.conversation_id) {
+                    console.log('[ChatSidebar] Updating conversation:', conv.id);
+                    return {
+                        ...conv,
+                        lastMessage: {
+                            content: notification.content,
+                            created_at: notification.created_at,
+                            sender_id: notification.sender_id,
+                            isUnread: conv.id !== activeConversationId
+                        }
+                    };
+                }
+                return conv;
+            });
+
+            return updatedConversations.sort((a, b) => {
+                const timeA = a.lastMessage?.created_at || a.created_at;
+                const timeB = b.lastMessage?.created_at || b.created_at;
+                return new Date(timeB) - new Date(timeA);
+            });
+        });
+    }, [activeConversationId]);
+
+    // Effect cho việc fetch conversations
     useEffect(() => {
         const fetchConversations = async () => {
             try {
@@ -24,8 +53,18 @@ const ChatSidebar = (
                 setLoading(false);
             }
         }
+        
         fetchConversations();
     }, [userProfile.id]);
+
+    // Đăng ký handler với App
+    useEffect(() => {
+        window.chatSidebarHandler = handleNewMessage;
+        
+        return () => {
+            window.chatSidebarHandler = null;
+        };
+    }, [handleNewMessage]);
 
     if (loading) {
         return <Loading />;
@@ -52,7 +91,7 @@ const ChatSidebar = (
                 </div>
 
                 {/* Online Users */}
-                <OnlineUser />
+                <OnlineUser currentUserId={userProfile.id} />
 
                 {/* Conversation list */}
                 <div className="sidebar-body pt-0 data-scrollbar mb-5 pb-5 px-4">

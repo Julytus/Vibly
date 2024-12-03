@@ -4,7 +4,7 @@ import Header from '../../components/header';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import SettingPanel from '../../components/settingPanel';
+import SettingPanel from '../../components/SettingPanel';
 const Chat = () => {
     const { userProfile } = useSelector((state) => state.account);
     const { activeConversationId } = useParams() || null;

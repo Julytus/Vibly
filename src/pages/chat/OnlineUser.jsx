@@ -1,54 +1,63 @@
+import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { getBasicProfileById, getAvatarById } from '../../services/api';
+import { webSocketService } from '../../services/websocket';
 import 'swiper/css';
 
-const OnlineUser = () => {
-    const onlineUsers = [
-        {
-            id: 1,
-            name: "Paul Molive",
-            avatar: "/images/chat/avatar/01.png"
-        },
-        {
-            id: 2, 
-            name: "John Travolta",
-            avatar: "/images/chat/avatar/02.png"
-        },
-        {
-            id: 3,
-            name: "Barb Ackue",
-            avatar: "/images/chat/avatar/03.png"
-        },
-        {
-            id: 4,
-            name: "Robert Fox",
-            avatar: "/images/chat/avatar/04.png"
-        },
-        {
-            id: 5,
-            name: "Maya Didas",
-            avatar: "/images/chat/avatar/05.png"
-        },
-        {
-            id: 6,
-            name: "Monty Carlo",
-            avatar: "/images/chat/avatar/06.png"
-        },
-        {
-            id: 7,
-            name: "Paige Turner",
-            avatar: "/images/chat/avatar/07.png"
-        },
-        {
-            id: 8,
-            name: "Arnold Schwarzenegger",
-            avatar: "/images/chat/avatar/08.png"
-        },
-        {
-            id: 9,
-            name: "Leonardo DiCaprio", 
-            avatar: "/images/chat/avatar/09.png"
-        }
-    ];
+const OnlineUser = ({ currentUserId }) => {
+    const [onlineUsers, setOnlineUsers] = useState([]);
+
+    useEffect(() => {
+        const fetchOnlineUsersData = async () => {
+            try {
+                // Lấy danh sách ID của các user đang online và lọc bỏ currentUserId
+                const activeUserIds = webSocketService.getActiveUsers()
+                    .filter(id => id !== currentUserId);
+                
+                if (activeUserIds.length === 0) {
+                    setOnlineUsers([]);
+                    return;
+                }
+
+                // Fetch thông tin cho mỗi user
+                const usersData = await Promise.all(
+                    activeUserIds.map(async (userId) => {
+                        try {
+                            const userData = await getBasicProfileById(userId);
+                            const avatar = await getAvatarById(userId);
+                            return {
+                                id: userId,
+                                name: `${userData.first_name} ${userData.last_name}`,
+                                avatar: avatar
+                            };
+                        } catch (error) {
+                            console.error(`Error fetching user data for ${userId}:`, error);
+                            return null;
+                        }
+                    })
+                );
+
+                // Lọc bỏ các null values (nếu có lỗi khi fetch)
+                setOnlineUsers(usersData.filter(user => user !== null));
+            } catch (error) {
+                console.error('Error fetching online users:', error);
+            }
+        };
+
+        // Fetch lần đầu
+        fetchOnlineUsersData();
+
+        // Cập nhật mỗi khi có thay đổi trong danh sách active users
+        const intervalId = setInterval(fetchOnlineUsersData, 2000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [currentUserId]);
+
+    if (onlineUsers.length === 0) {
+        return null;
+    }
 
     return (
         <div className="swiper-general messenger-swiper overflow-hidden mb-4">
@@ -78,6 +87,7 @@ const OnlineUser = () => {
                                 className="avatar-48 object-cover rounded-circle" 
                                 alt={`${user.name}-avatar`}
                             />
+                            <div className="iq-profile-badge bg-success"></div>
                         </div>
                         <p className="mt-2 mb-0 font-size-14 custom-ellipsis text-body">
                             {user.name}
