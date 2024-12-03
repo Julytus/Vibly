@@ -1,6 +1,8 @@
 package com.julytus.ChatService.services;
 
+import com.julytus.ChatService.constants.NotificationType;
 import com.julytus.ChatService.models.dto.response.PageResponse;
+import com.julytus.event.dto.Notification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -38,7 +40,26 @@ public class MessageService {
                 .build();
 
         Message message = messageRepository.save(newMess);
-        kafkaTemplate.send("chat-messages", newMess);
+        kafkaTemplate.send("chat-messages", message);
+
+        String receiverId = existingConversation.getUserId()
+                .stream()
+                .filter(id -> !id.equals(request.getSenderId())) // Lấy ID khác với senderId
+                .findFirst()
+                .orElseThrow(() -> new DataNotFoundException("Receiver not found in conversation"));
+
+        Notification newNoti = Notification
+                .builder()
+                .senderId(request.getSenderId())
+                .receiverId(receiverId)
+                .conversationId(message.getConversationId())
+                .content(message.getContent())
+                .type(NotificationType.MESSAGE)
+                .referenceId(message.getId())
+                .createdAt(message.getCreatedAt())
+                .build();
+        kafkaTemplate.send("notifications", newNoti);
+
         conversationService.updateLastMessage(existingConversation, message);
         return message;
     }
