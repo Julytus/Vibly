@@ -12,11 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KafkaConsumerService {
+public class ChatConsumerService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    @KafkaListener(topics = "chat-messages", groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(topics = "chat-messages", groupId = "${spring.kafka.consumer.chat-group-id}")
     public void consume(Message message) {
         try {
             String destination = "/conversation/" + message.getConversationId();

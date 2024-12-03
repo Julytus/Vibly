@@ -4,14 +4,14 @@ spring:
   kafka:
     bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
     consumer:
-      group-id: ${KAFKA_GROUP_ID:chat-group}
+      chat-group-id: ${KAFKA_CHAT_GROUP_ID:chat-group}
+      notification-group-id: ${KAFKA_NOTIFICATION_GROUP_ID:notification-group}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
     producer:
-      group-id: ${KAFKA_GROUP_ID:chat-group}
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:

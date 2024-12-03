@@ -14,6 +14,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import com.julytus.SocketService.model.Message;
+import com.julytus.event.dto.Notification;
 
 @Configuration
 public class KafkaConfig {
@@ -21,16 +22,37 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
-    @Value("${spring.kafka.consumer.group-id}")
-    private String groupId;
+    @Value("${spring.kafka.consumer.chat-group-id}")
+    private String chatGroupId;
+
+    @Value("${spring.kafka.consumer.notification-group-id}")
+    private String notificationGroupId;
 
     @Bean
-    public ConsumerFactory<String, Message> consumerFactory() {
+    public ConsumerFactory<String, Message> messageConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, chatGroupId);
         
         JsonDeserializer<Message> deserializer = new JsonDeserializer<>(Message.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(true);
+        
+        return new DefaultKafkaConsumerFactory<>(
+            props, 
+            new StringDeserializer(), 
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConsumerFactory<String, Notification> notificationConsumerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, notificationGroupId);
+        
+        JsonDeserializer<Notification> deserializer = new JsonDeserializer<>(Notification.class);
         deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("*");
         deserializer.setUseTypeMapperForKey(true);
@@ -46,7 +68,15 @@ public class KafkaConfig {
     public ConcurrentKafkaListenerContainerFactory<String, Message> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Message> factory = 
             new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(consumerFactory());
+        factory.setConsumerFactory(messageConsumerFactory());
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, Notification> notificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Notification> factory = 
+            new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(notificationConsumerFactory());
         return factory;
     }
 } 
