@@ -1,4 +1,4 @@
-package com.julytus.NotificationService.models;
+package com.julytus.NotificationService.models.WelcomeEmail;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Sender {
+public class Recipient {
     String name;
     String email;
 }

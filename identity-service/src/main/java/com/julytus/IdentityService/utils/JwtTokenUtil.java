@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Component;
 
@@ -136,16 +137,15 @@ public class JwtTokenUtil {
         try {
             accessTokenJwtDecoder.decode(token);
         } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT token: {}", e.getMessage());
+            throw new MalformedJwtException("Invalid JWT token");
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired: {}", e.getMessage());
+            throw new ExpiredJwtException(null, null, "Expired JWT token", null);
         } catch (UnsupportedJwtException e) {
-            logger.error("JWT token is unsupported: {}", e.getMessage());
+            throw new UnsupportedJwtException("JWT token is unsupported");
         } catch (IllegalArgumentException e) {
-            logger.error("JWT claims string is empty: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid JWT token");
         } catch (JwtException e) {
-            // Handle other JWT related exceptions
-            logger.error("JWT token is invalid: {}", e.getMessage());
+            throw new JwtException("Invalid JWT token");
         }
         return true;
     }

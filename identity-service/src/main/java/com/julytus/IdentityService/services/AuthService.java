@@ -15,7 +15,7 @@ import com.julytus.IdentityService.repositories.HttpClient.ProfileClient;
 import com.julytus.IdentityService.repositories.RoleRepository;
 import com.julytus.IdentityService.repositories.UserRepository;
 import com.julytus.IdentityService.utils.JwtTokenUtil;
-import com.julytus.event.dto.NotificationEvent;
+import com.julytus.event.dto.SendEmailEvent;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -62,7 +62,7 @@ public class AuthService {
             Token jwtToken = tokenService.addToken(user, token);
 
             LoginResponse loginResponse = fromUserAndToken(user, jwtToken);
-            UserProfileResponse profile = profileClient.getProfile(loginRequest.getUsername());
+            UserProfileResponse profile = profileClient.getProfile(user.getId());
             profile.setRole(authentication.getAuthorities().iterator().next().getAuthority());
             loginResponse.setUserProfile(profile);
 
@@ -111,7 +111,7 @@ public class AuthService {
                 .build();
         profileClient.createProfile(request);
 
-        NotificationEvent event = NotificationEvent
+        SendEmailEvent event = SendEmailEvent
                 .builder()
                 .channel("EMAIL")
                 .recipient(registerRequest.getEmail())

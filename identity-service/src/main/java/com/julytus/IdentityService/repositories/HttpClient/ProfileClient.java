@@ -17,6 +17,6 @@ public interface ProfileClient {
     @PostMapping("/users")
     void createProfile(ProfileCreationRequest request);
 
-    @GetMapping("/users/{username}")
-    UserProfileResponse getProfile(@PathVariable("username") String username);
+    @GetMapping("/users/id/{id}")
+    UserProfileResponse getProfile(@PathVariable("id") String id);
 }

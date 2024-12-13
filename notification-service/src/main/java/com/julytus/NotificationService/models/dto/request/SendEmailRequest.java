@@ -1,6 +1,6 @@
 package com.julytus.NotificationService.models.dto.request;
 
-import com.julytus.NotificationService.models.Recipient;
+import com.julytus.NotificationService.models.WelcomeEmail.Recipient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

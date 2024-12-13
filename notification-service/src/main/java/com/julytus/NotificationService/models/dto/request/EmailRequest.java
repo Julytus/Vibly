@@ -2,8 +2,8 @@ package com.julytus.NotificationService.models.dto.request;
 
 import java.util.List;
 
-import com.julytus.NotificationService.models.Recipient;
-import com.julytus.NotificationService.models.Sender;
+import com.julytus.NotificationService.models.WelcomeEmail.Recipient;
+import com.julytus.NotificationService.models.WelcomeEmail.Sender;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

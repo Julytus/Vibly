@@ -14,7 +14,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import com.julytus.SocketService.model.Message;
-import com.julytus.event.dto.Notification;
+import com.julytus.event.dto.NotificationEvent;
 
 @Configuration
 public class KafkaConfig {
@@ -47,12 +47,12 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Notification> notificationConsumerFactory() {
+    public ConsumerFactory<String, NotificationEvent> notificationConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, notificationGroupId);
         
-        JsonDeserializer<Notification> deserializer = new JsonDeserializer<>(Notification.class);
+        JsonDeserializer<NotificationEvent> deserializer = new JsonDeserializer<>(NotificationEvent.class);
         deserializer.setRemoveTypeHeaders(false);
         deserializer.addTrustedPackages("*");
         deserializer.setUseTypeMapperForKey(true);
@@ -73,8 +73,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Notification> notificationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, Notification> factory = 
+    public ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> notificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, NotificationEvent> factory = 
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(notificationConsumerFactory());
         return factory;
