@@ -1,36 +1,48 @@
 package com.julytus.NotificationService.controllers;
 
+import com.julytus.NotificationService.exceptions.DataNotFoundException;
+import com.julytus.NotificationService.models.dto.response.PageResponse;
+import com.julytus.NotificationService.models.models.Notification;
+import com.julytus.NotificationService.services.NotificationService;
 import com.julytus.event.dto.NotificationEvent;
-import com.julytus.NotificationService.models.Recipient;
-import com.julytus.NotificationService.models.dto.request.SendEmailRequest;
-import com.julytus.NotificationService.services.EmailService;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.stereotype.Component;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Slf4j
-@Component
+@RestController
+@RequestMapping("/friend")
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class NotificationController {
+    private final NotificationService notificationService;
 
-    EmailService emailService;
+    @GetMapping("/request")
+    public ResponseEntity<PageResponse<Notification>> getMyNotifications(
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size
+    ) {
+        var result = notificationService.getMyNotifications(page, size);
+        return ResponseEntity.ok(result);
+    }
 
-    @KafkaListener(topics = "vibly-notification-email")
-    public void listenNotificationDelivery(
-            NotificationEvent message) throws Exception {
-        log.info("Message received: {}", message);
-        emailService.sendEmail(SendEmailRequest.builder()
-                .to(Recipient
-                        .builder()
-                        .email(message.getRecipient())
-                        .name(message.getRecipientName())
-                        .build())
-                .subject(message.getSubject())
-                .htmlContent(message.getBody())
-                .build());
+    @PostMapping("/request")
+    public ResponseEntity<Notification> createNotification(
+            @RequestBody NotificationEvent message
+    ) {
+        var result = notificationService.createNotification(message);
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/request/{id}")
+    public ResponseEntity<Notification> updateRequestAccepted(
+            @PathVariable String id
+    ) throws DataNotFoundException {
+        return ResponseEntity.ok(notificationService.updateRequestAccepted(id));
+    }
+
+    @DeleteMapping("/request/{id}")
+    public ResponseEntity<Notification> deleteNotification(
+            @PathVariable String id
+    ) throws DataNotFoundException {
+        return ResponseEntity.ok(notificationService.DeleteNotification(id));
     }
 }

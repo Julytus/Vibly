@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import com.julytus.NotificationService.models.Sender;
+import com.julytus.NotificationService.models.WelcomeEmail.Sender;
 import com.julytus.NotificationService.models.dto.request.EmailRequest;
 import com.julytus.NotificationService.models.dto.request.SendEmailRequest;
 import com.julytus.NotificationService.models.dto.response.EmailResponse;

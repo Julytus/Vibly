@@ -3,10 +3,13 @@ server:
   servlet:
     context-path: /profile
 spring:
-  # kafka:
-  #   bootstrap-servers: "${HOST_IP_ADDRESS:localhost}:9092"
-  #   consumer:
-  #     group-id: ${KAFKA_GROUP_ID:default-group}
+  kafka:
+    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "*"
   servlet:
     multipart:
       max-file-size: 10MB
@@ -22,3 +25,11 @@ spring:
     timeout: 60000
   cache:
     type: redis
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+      notification-service:
+        url: ${NOTIFICATION_SERVICE_URL:http://localhost:9003/notification}

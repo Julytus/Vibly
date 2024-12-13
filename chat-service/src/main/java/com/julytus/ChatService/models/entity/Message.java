@@ -27,8 +27,11 @@ public class Message {
     @JsonProperty("conversation_id")
     String conversationId;
 
+    Integer seq;
+
     @JsonProperty("created_at")
     LocalDateTime createdAt;
     @JsonProperty("updated_at")
     LocalDateTime updatedAt;
+
 }

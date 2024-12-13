@@ -1,5 +1,6 @@
 package com.julytus.PostService.models.entity;
 
+import com.julytus.PostService.constants.PrivacyLevel;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,6 +22,9 @@ public class Post {
     String userId;
     String content;
     List<String> imageUrls;
+    List<Tag> tags;
+    @Builder.Default
+    PrivacyLevel privacyLevel = PrivacyLevel.PUBLIC;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
 }

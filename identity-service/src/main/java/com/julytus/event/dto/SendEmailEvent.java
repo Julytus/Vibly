@@ -10,7 +10,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class NotificationEvent {
+public class SendEmailEvent {
     String channel;
     String recipient;
     String recipientName;

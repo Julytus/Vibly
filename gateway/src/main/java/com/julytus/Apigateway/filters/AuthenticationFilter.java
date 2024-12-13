@@ -34,10 +34,10 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private final String[] publicEndpoints = {
             "/identity/auth/.*",
-            "/profile/.*",
             "/notification/.*",
             "/post/.*",
-            "/chat/.*"
+            "/chat/.*",
+            "/profile/users/.*"
     };
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

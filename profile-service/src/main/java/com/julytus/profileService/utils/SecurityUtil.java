@@ -1,5 +1,7 @@
 package com.julytus.profileService.utils;
 
+import java.util.Optional;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,9 +10,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.Optional;
-
 @Service
 public class SecurityUtil {
     /**
@@ -18,22 +17,31 @@ public class SecurityUtil {
      *
      * @return the login of the current user.
      */
-    public static Optional<UserLoginInfo> getCurrentUserLogin() {
+    public static UserLoginInfo getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 
-        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
-            Instant expiration = jwtAuthenticationToken.getToken().getExpiresAt();
-            if (expiration.isBefore(Instant.now())) {
-                return Optional.empty();
-            }
-            
+        if(authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Jwt jwt = jwtAuthenticationToken.getToken();
+
             String username = jwtAuthenticationToken.getName();
             String token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
-            String role = ((JwtAuthenticationToken) authentication).getToken().getClaims().get("role").toString();
-            return Optional.of(new UserLoginInfo(username, role, token));
+            String  userId = jwt.getClaim("userId");
+            String role = jwt.getClaim("role");
+            return new UserLoginInfo(username, token, userId, role);
         }
-        return Optional.empty();
+        return null;
+    }
+
+    public static String getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+
+        if(authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Jwt jwt = jwtAuthenticationToken.getToken();
+            return jwt.getClaim("userId");
+        }
+        return null;
     }
 
     private static String extractPrincipal(Authentication authentication) {

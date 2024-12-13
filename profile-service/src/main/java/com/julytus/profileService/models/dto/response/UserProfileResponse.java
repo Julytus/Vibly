@@ -20,8 +20,6 @@ public class UserProfileResponse {
     String firstName;
     @JsonProperty("last_name")
     String lastName;
-    LocalDate dob;
-    String city;
     String avatar;
     String role;
 }

@@ -16,6 +16,7 @@ spring:
     name: notification-service
   data:
     mongodb:
+      auto-index-creation: true
       uri: ${SPRING_DATA_MONGODB_URI:mongodb://root:root@localhost:27017/notification_service?authSource=admin}
 notification:
   email:

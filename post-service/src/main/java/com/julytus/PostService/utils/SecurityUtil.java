@@ -22,18 +22,27 @@ public class SecurityUtil {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 
-        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
-            Instant expiration = jwtAuthenticationToken.getToken().getExpiresAt();
-            if (expiration.isBefore(Instant.now())) {
-                return Optional.empty();
-            }
-            
+        if(authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Jwt jwt = jwtAuthenticationToken.getToken();
+
             String username = jwtAuthenticationToken.getName();
             String token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
-            String role = ((JwtAuthenticationToken) authentication).getToken().getClaims().get("role").toString();
-            return Optional.of(new UserLoginInfo(username, role, token));
+            String userId = jwt.getClaim("userId");
+            String role = jwt.getClaim("role");
+            return Optional.of(new UserLoginInfo(username, role, token, userId));
         }
         return Optional.empty();
+    }
+
+    public static String getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+
+        if(authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            Jwt jwt = jwtAuthenticationToken.getToken();
+            return jwt.getClaim("userId");
+        }
+        return null;
     }
 
     private static String extractPrincipal(Authentication authentication) {
