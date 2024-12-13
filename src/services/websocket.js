@@ -26,17 +26,14 @@ class WebSocketService {
         }
 
         if (this.isConnected()) {
-            console.log('[WebSocket] Already connected');
             onConnected();
             return;
         }
 
         if (this.client && !this.isConnected()) {
-            console.log('[WebSocket] Connection in progress');
             return;
         }
 
-        console.log('[WebSocket] Initializing new connection with userId:', this.userId);
         this.client = new Client({
             brokerURL: 'ws://localhost:9006/ws',
             connectHeaders: {
@@ -46,7 +43,6 @@ class WebSocketService {
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             onConnect: () => {
-                console.log('[WebSocket] Connected successfully');
                 this.connected = true;
                 this.isInitialized = true;
                 
@@ -65,7 +61,6 @@ class WebSocketService {
                 onConnected();
             },
             onDisconnect: () => {
-                console.log('[WebSocket] Disconnected');
                 this.connected = false;
             },
             onStompError: (frame) => {
@@ -77,7 +72,6 @@ class WebSocketService {
                 this.connected = false;
             },
             onWebSocketClose: () => {
-                console.log('WebSocket connection closed');
                 this.connected = false;
             }
         });
@@ -101,7 +95,6 @@ class WebSocketService {
         }
 
         try {
-            console.log(`Subscribing to conversation ${conversationId}`);
             const subscription = this.client.subscribe(
                 `/conversation/${conversationId}`,
                 (message) => {
@@ -117,7 +110,6 @@ class WebSocketService {
             );
 
             this.subscriptions.set(conversationId, subscription);
-            console.log(`Successfully subscribed to ${conversationId}`);
         } catch (error) {
             console.error('Error subscribing to conversation:', error);
         }
@@ -201,9 +193,7 @@ class WebSocketService {
             return;
         }
 
-        try {
-            console.log(`[WebSocket] Subscribing to notifications for user ${userId}`);
-            
+        try {            
             // Kiểm tra xem đã subscribe active users chưa
             if (!this.subscriptions.has('active-users')) {
                 const activeUsersSubscription = this.client.subscribe(
@@ -256,6 +246,16 @@ class WebSocketService {
                                 console.log('[WebSocket] Post notification:', notification.content);
                                 handlers?.onNewPost?.(notification);
                                 this.notificationHandlers.get('POST')?.(notification);
+                                break;
+                            case 'FRIEND_REQUEST':
+                                console.log('[WebSocket] Friend request notification:', notification);
+                                handlers?.onFriendRequest?.(notification);
+                                this.notificationHandlers.get('FRIEND_REQUEST')?.(notification);
+                                break;
+                            case 'REQUEST_ACCEPTED':
+                                console.log('[WebSocket] Friend request accepted notification:', notification);
+                                handlers?.onFriendRequestAccepted?.(notification);
+                                this.notificationHandlers.get('REQUEST_ACCEPTED')?.(notification);
                                 break;
                             default:
                                 console.log('[WebSocket] Unknown notification type:', notification.type);

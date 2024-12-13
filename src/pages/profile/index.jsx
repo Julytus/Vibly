@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProfileById, getAvatarById, getBackgroundById } from '../../services/api';
+import { getProfileById, 
+    getAvatarById, 
+    getBackgroundById, 
+    openConversation 
+} from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setInitialState } from '../../redux/slices/sidebarSlice';
 import Loading from '../../components/loading';
 import Error404 from '../../components/error404';
 import Description from './Description';
-import { openConversation } from '../../services/api';
+import FriendRequestButton from '../../components/FriendRequestButton';
 
 const ProfilePage = () => {
     const { id } = useParams();
     const [profile, setProfile] = useState(null);
     const [avatar, setAvatar] = useState(null);
     const [background, setBackground] = useState(null);
-    const [loading1, setLoading1] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const { userProfile } = useSelector((state) => state.account);
     const dispatch = useDispatch();
 
@@ -24,19 +28,21 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                setLoading1(true);
+                setIsLoading(true);
                 const profileData = await getProfileById(id);
                 setProfile(profileData);
 
-                const avatarUrl = await getAvatarById(id);
+                const [avatarUrl, backgroundUrl] = await Promise.all([
+                    getAvatarById(id),
+                    getBackgroundById(id)
+                ]);
+                
                 setAvatar(avatarUrl);
-
-                const backgroundUrl = await getBackgroundById(id);
                 setBackground(backgroundUrl);
             } catch (error) {
                 return <Error404 />;
             } finally {
-                setLoading1(false);
+                setIsLoading(false);
             }
         };
 
@@ -50,8 +56,7 @@ const ProfilePage = () => {
         dispatch(setInitialState({ leftSidebarOpen: true, rightSidebarOpen: false }));
     }, [dispatch]);
 
-
-    if (loading1) {
+    if (isLoading) {
         return <Loading />;
     }
 
@@ -100,19 +105,20 @@ const ProfilePage = () => {
                                                     </div>
                                                     {
                                                         id === userProfile.id ? "" : (
-                                                            <div className="item4 ms-1 cursor-pointer">
-                                                                <div className="d-flex justify-content-between align-items-center ms-1 flex-wrap gap-2 gap-md-3"
-                                                                onClick={handleOpenConversation}>
-                                                                    <div className="d-flex align-items-center">
+                                                            <div className="item4 ms-1">
+                                                                <div className="d-flex justify-content-between align-items-center ms-1 flex-wrap gap-2 gap-md-3 cursor-pointer"
+                                                                    >
+                                                                    <div className="d-flex align-items-center"
+                                                                        onClick={handleOpenConversation}>
                                                                         <span className="material-symbols-outlined writ-icon md-18">
                                                                         send
                                                                     </span>
                                                                     <h6 className="ms-1">Write a message</h6>
                                                                 </div>
-                                                                <button type="button" className="btn btn-primary btn-sm d-flex align-items-center">
-                                                                    <span className="material-symbols-outlined md-16">add</span>
-                                                                    Follow
-                                                                </button>
+                                                                <FriendRequestButton 
+                                                                    profileId={profile.id} 
+                                                                    currentUserId={userProfile.id} 
+                                                                />
                                                                 </div>
                                                             </div>
                                                         )

@@ -24,6 +24,7 @@ import ProfilePage from './pages/profile';
 import MiniChatBox from './components/minichatbox';
 import Chat from './pages/chat';
 import { useWebSocket } from './hooks/useWebSocket';
+import Toast from './components/Toast';
 const Layout = () => {
   return (
     <div className="layout-app">
@@ -64,7 +65,6 @@ export default function App() {
       return;
     }
     const response = await fetchProfile();
-    console.log("get Profile", response);
     if (response) {
       dispatch(doGetAccountAction(response));
     } else {
@@ -129,6 +129,7 @@ export default function App() {
         window.location.pathname === "/login" ||
         window.location.pathname === "/register" ? 
         <RouterProvider router={router} /> : <Loading />}
+      <Toast />
     </>
   )
 }

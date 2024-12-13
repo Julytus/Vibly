@@ -4,13 +4,14 @@ import { webSocketService } from '../services/websocket';
 export const useWebSocket = (userProfile) => {
     const [activeUsers, setActiveUsers] = useState([]);
 
-    const handleNotification = useCallback((notification) => {
-        switch(notification.type) {
-            case 'MESSAGE':
-                if (window.chatSidebarHandler) {
-                    window.chatSidebarHandler(notification);
-                }
-                break;
+    const handleNotification = useCallback((notification) => {        
+        const handler = webSocketService.notificationHandlers.get(notification.type);
+        if (handler) {
+            handler(notification);
+        }
+
+        if (notification.type === 'MESSAGE' && window.chatSidebarHandler) {
+            window.chatSidebarHandler(notification);
         }
     }, []);
 
@@ -20,10 +21,11 @@ export const useWebSocket = (userProfile) => {
 
     useEffect(() => {
         if (userProfile?.id && !webSocketService.isConnected()) {
-            console.log('[WebSocket] Connecting for user:', userProfile.id);
             webSocketService.connect(() => {
                 webSocketService.subscribeToNotifications(userProfile.id, {
                     onNewMessage: handleNotification,
+                    onFriendRequest: handleNotification,
+                    onFriendRequestAccepted: handleNotification,
                     onActiveUsersUpdate: handleActiveUsersUpdate
                 });
             }, userProfile.id);

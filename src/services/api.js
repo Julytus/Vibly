@@ -109,7 +109,8 @@ export const createPost = async (postData) => {
     console.log("1. Starting createPost with data:", postData);
     
     const response = await axios.post('/post/u', {
-      content: postData.content
+      content: postData.content,
+      privacyLevel: postData.privacyLevel || 'PUBLIC'
     }, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -149,7 +150,10 @@ export const createPost = async (postData) => {
 export const getPostsByUserId = async (userId, page = 1, size = 4) => {
   try {
     const response = await axios.get(`/post/u/${userId}`, {
-      params: { page, size }
+      params: { page, size },
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
     });
     return response.data;
   } catch (error) {
@@ -244,6 +248,130 @@ export const sendMessage = async (senderId, content, conversationId) => {
         return response.data;
     } catch (error) {
         console.error('API sendMessage, Error:', error);
+        throw error;
+    }
+};
+
+// Friend Request APIs
+export const sendFriendRequest = async (receiverId) => {
+    try {
+        const response = await axios.post('/profile/friends/send', null, {
+            params: { receiverId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API sendFriendRequest, Error:', error);
+        throw error;
+    }
+};
+
+export const checkFriendRequest = async (friendId) => {
+    try {
+        const response = await axios.get('/profile/friends/checkRequest', {
+            params: { friendId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API checkFriendRequest, Error:', error);
+        throw error;
+    }
+};
+
+export const cancelFriendRequest = async (requestId) => {
+    try {
+        const response = await axios.delete('/profile/friends/cancel', {
+            params: { requestId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API cancelFriendRequest, Error:', error);
+        throw error;
+    }
+};
+
+export const acceptFriendRequest = async (requestId) => {
+    try {
+        const response = await axios.post(`/profile/friends/accept`, null, {
+            params: { requestId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API acceptFriendRequest, Error:', error);
+        throw error;
+    }
+};
+
+export const declineFriendRequest = async (requestId) => {
+    try {
+        const response = await axios.post('/profile/friends/decline', null, {
+            params: { requestId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API declineFriendRequest, Error:', error);
+        throw error;
+    }
+};
+
+export const checkFriendStatus = async (friendId, userId) => {
+    try {
+        const response = await axios.get('/profile/friends/checkFriend', {
+            params: { 
+                friendId,
+                userId 
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API checkFriendStatus, Error:', error);
+        throw error;
+    }
+};
+
+export const unfriend = async (friendId) => {
+    try {
+        const response = await axios.post('/profile/friends/unfriend', null, {
+            params: { friendId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API unfriend, Error:', error);
+        throw error;
+    }
+};
+
+export const getFriendRequests = async (page = 1, size = 4) => {
+    try {
+        const response = await axios.get('/notification/friend/request', {
+            params: { page, size },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API getFriendRequests, Error:', error);
         throw error;
     }
 };

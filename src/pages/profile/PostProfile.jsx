@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import loader from '/images/page-img/page-load-loader.gif';
 import { getPostsByUserId } from '../../services/api';
 import ImageGallery from '../../components/ImageGallery/ImageGallery';
+import { dateHandler } from '../../utils/date';
+import TextWithTags from '../../components/ContentWithTags/TextWithTags';
 
 const PostProfile = ({
     firstName,
@@ -104,9 +106,9 @@ const PostProfile = ({
                                         <h5>{firstName} {lastName}</h5>
                                         <small className="d-flex align-items-center">
                                             <i className="material-symbols-outlined md-14 me-1">schedule</i> 
-                                            {post.isNew ? 'Just now' : new Date(post.created_at).toLocaleString()}
+                                            {post.isNew ? 'Just now' : dateHandler(post.created_at)}
                                         </small>
-                                        <p>{post.content}</p>
+                                        <TextWithTags content={post.content} />
                                         {post.image_urls && <ImageGallery imageUrls={post.image_urls} />}
                                         <hr />
                                         <div className="d-flex justify-content-between align-items-center flex-wrap">

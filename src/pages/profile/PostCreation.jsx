@@ -19,6 +19,7 @@ const PostCreation = ({
     const [loading2, setLoading2] = useState(false);
     const [newPost, setNewPost] = useState(null);
     const [postLoading, setPostLoading] = useState(false);
+    const [privacyLevel, setPrivacyLevel] = useState('PUBLIC');
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -64,7 +65,8 @@ const PostCreation = ({
         try {
             const formData = {
                 content: postContent,
-                images: selectedImages
+                images: selectedImages,
+                privacyLevel: privacyLevel
             };
             const newPost = await createPost(formData);
             setLoading2(false);
@@ -199,6 +201,63 @@ const PostCreation = ({
                                             onKeyDown={handleKeyDown}
                                         />
                                     </form>
+                                </div>
+
+                                <div className="d-flex align-items-center mt-3">
+                                    <div className="card-post-toolbar">
+                                        <div className="dropdown">
+                                            <span className="dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" role="button">
+                                                <span className="btn btn-primary">
+                                                    {privacyLevel === 'PUBLIC' ? 'Public' : 
+                                                     privacyLevel === 'FRIENDS' ? 'Friends' : 'Only Me'}
+                                                </span>
+                                            </span>
+                                            <div className="dropdown-menu m-0 p-0">
+                                                <a className="dropdown-item p-3" href="#" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPrivacyLevel('PUBLIC');
+                                                }}>
+                                                    <div className="d-flex align-items-top">
+                                                        <span className="material-symbols-outlined">
+                                                            public
+                                                        </span>
+                                                        <div className="data ms-2">
+                                                            <h6>Public</h6>
+                                                            <p className="mb-0">Anyone can see</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a className="dropdown-item p-3" href="#" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPrivacyLevel('FRIENDS');
+                                                }}>
+                                                    <div className="d-flex align-items-top">
+                                                        <span className="material-symbols-outlined">
+                                                            group
+                                                        </span>
+                                                        <div className="data ms-2">
+                                                            <h6>Friends</h6>
+                                                            <p className="mb-0">Your friends on social network</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                                <a className="dropdown-item p-3" href="#" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setPrivacyLevel('PRIVATE');
+                                                }}>
+                                                    <div className="d-flex align-items-top">
+                                                        <span className="material-symbols-outlined">
+                                                            lock
+                                                        </span>
+                                                        <div className="data ms-2">
+                                                            <h6>Only Me</h6>
+                                                            <p className="mb-0">Only you can see</p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Hiển thị preview ảnh */}
