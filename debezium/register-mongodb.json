@@ -1,0 +1,33 @@
+{
+  "name": "post-service-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.mongodb.MongoDbConnector",
+    "tasks.max": "1",
+    "mongodb.connection.string": "mongodb://root:root@mongodb:27017/?replicaSet=rs0&authSource=admin",
+    "mongodb.connection.mode": "replica_set",
+    "mongodb.name": "vibly",
+    "mongodb.user": "root",
+    "mongodb.password": "root",
+    "mongodb.authsource": "admin",
+    "collection.include.list": "post_service.post",
+    "topic.prefix": "mongodb-vibly",
+    "heartbeat.interval.ms": "5000",
+    "connect.timeout.ms": "30000",
+    "mongodb.poll.interval.ms": "1000",
+    "errors.tolerance": "all",
+    "errors.log.enable": true,
+    "errors.log.include.messages": true,
+    "snapshot.mode": "initial",
+    "max.batch.size": "2048",
+    "max.queue.size": "8192",
+    "provide.transaction.metadata": true,
+    "tombstones.on.delete": true,
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.connector.mongodb.transforms.ExtractNewDocumentState",
+    "transforms.unwrap.drop.tombstones": "false",
+    "transforms.unwrap.delete.handling.mode": "rewrite",
+    "transforms.unwrap.operation.header": "true"
+  }
+}
+//curl.exe -X POST http://localhost:8083/connectors -H "Content-Type: application/json" -d "@debezium/register-mongodb.json"
+//docker exec -it mongodb-7.0.11 mongosh -u root -p root --eval "rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'mongodb:27017'}]})"

@@ -1,10 +1,12 @@
 package com.julytus.PostService.controllers;
 
+import com.julytus.PostService.constants.PrivacyLevel;
 import com.julytus.PostService.models.dto.request.PostCreationRequest;
 import com.julytus.PostService.models.dto.response.PageResponse;
 import com.julytus.PostService.models.dto.response.PostResponse;
 import com.julytus.PostService.models.entity.Post;
 import com.julytus.PostService.services.PostService;
+import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -25,21 +29,22 @@ import static org.springframework.http.ResponseEntity.ok;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping()
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Post> createPost(
-            @RequestBody PostCreationRequest request) {
+            @RequestPart("content") String content,
+            @RequestPart("privacyLevel") String privacyLevel,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) 
+            throws IOException, ServerException, InsufficientDataException,
+            ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException,
+            XmlParserException, InvalidResponseException, InternalException {
+
+        PostCreationRequest request = new PostCreationRequest();
+        request.setContent(content);
+        request.setPrivacyLevel(PrivacyLevel.valueOf(privacyLevel));
+        request.setImages(images);
 
         Post response = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping("/upload/{id}")
-    public ResponseEntity<Post> uploadPostImg(
-            @RequestBody List<MultipartFile> files,
-            @PathVariable String id
-    ) throws IOException {
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.upImage(id, files));
     }
 
     @GetMapping("/img/{url}")

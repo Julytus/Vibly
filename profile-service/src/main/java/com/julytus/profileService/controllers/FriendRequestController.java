@@ -93,4 +93,12 @@ public class FriendRequestController {
         friendService.unfriend(friendId);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/listId")
+    public ResponseEntity<List<String>> getAllFollower(
+            @RequestParam String userId
+    ) {
+        List<String> followers = friendService.findFriendsAndRequesters(userId);
+        return ResponseEntity.ok(followers);
+    }
 }

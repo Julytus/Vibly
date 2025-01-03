@@ -33,3 +33,7 @@ feign:
         readTimeout: 5000
       notification-service:
         url: ${NOTIFICATION_SERVICE_URL:http://localhost:9003/notification}
+minio:
+  url: ${MINIO_URL:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}

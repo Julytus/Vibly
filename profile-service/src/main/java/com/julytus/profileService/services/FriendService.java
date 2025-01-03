@@ -179,4 +179,8 @@ public class FriendService {
 
         friendRequestRepository.deleteFriendRelationship(userId, friendId);
     }
+
+    public List<String> findFriendsAndRequesters(String userId) {
+        return friendRequestRepository.getFollowersById(userId);
+    }
 } 
