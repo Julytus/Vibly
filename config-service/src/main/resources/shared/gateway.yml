@@ -22,6 +22,10 @@ spring:
           uri: lb://chat-service
           predicates:
             - Path=/chat/**
+        - id: search-service
+          uri: lb://search-service
+          predicates:
+            - Path=/search/**
 server:
   port: 8080
 #management:

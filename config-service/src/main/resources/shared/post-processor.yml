@@ -1,0 +1,28 @@
+server:
+  port: ${POST_PROCESSOR_PORT:9696}
+spring:
+  kafka:
+    bootstrap-servers: "${KAFKA_SERVERS:localhost:9094}"
+    consumer:
+      group-id: ${KAFKA_GROUP_ID:post-processor-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+    topics:
+      new-post: "new-post-topic"
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    timeout: 60000
+  cache:
+    type: redis
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+      profile-service:
+        url: ${PROFILE_SERVICE_URL:http://localhost:9002/profile}

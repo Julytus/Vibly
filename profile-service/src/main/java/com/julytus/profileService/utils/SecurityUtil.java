@@ -25,7 +25,7 @@ public class SecurityUtil {
             Jwt jwt = jwtAuthenticationToken.getToken();
 
             String username = jwtAuthenticationToken.getName();
-            String token = ((JwtAuthenticationToken) authentication).getToken().getTokenValue();
+            String token = jwtAuthenticationToken.getToken().getTokenValue();
             String  userId = jwt.getClaim("userId");
             String role = jwt.getClaim("role");
             return new UserLoginInfo(username, token, userId, role);

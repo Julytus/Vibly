@@ -1,22 +1,30 @@
 package com.julytus.PostService.utils;
 
-import com.julytus.PostService.models.entity.Post;
-import com.julytus.PostService.repositories.PostRepository;
+import io.minio.*;
+import io.minio.errors.*;
+import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
+import jakarta.annotation.PostConstruct;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Service
 public class FileUtil {
+    private final MinioClient minioClient;
+
+    @Value("${minio.bucket}")
+    private String bucket;
 
     //Check ContentType
     public static boolean isImageFile(MultipartFile file) {
@@ -36,33 +44,46 @@ public class FileUtil {
         }
     }
 
-    //Up Image
-    public static List<String> upImages(Post post,
-                                List<MultipartFile> files,
-                                String uploadsFolder) throws IOException {
-        List<String> imageUrls = new ArrayList<>();
-
-        java.nio.file.Path uploadDir = Paths.get(uploadsFolder);
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
+    @PostConstruct
+    public void init() {
+        try {
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
 
+    public List<String> uploadFile(List<MultipartFile> files)
+            throws IOException, XmlParserException, InternalException,
+            ServerException, InsufficientDataException, ErrorResponseException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException {
+        List<String> imageUrls = new ArrayList<>();
         for (MultipartFile file : files) {
             validateImageFile(file);
 
-            String fileName = post.getId() + "_" + UUID.randomUUID() + "_" +
-                    StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+            String fileName = UUID.randomUUID() + "_"
+                    + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
-            java.nio.file.Path destination = uploadDir.resolve(fileName);
-
-            try (InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            imageUrls.add(fileName);
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(fileName)
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .contentType(file.getContentType())
+                            .build()
+            );
+            String imageUrl = minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .bucket(bucket)
+                            .object(fileName)
+                            .method(Method.GET)
+                            .build()
+            );
+            imageUrls.add(imageUrl);
         }
         return imageUrls;
     }
-
-
 }

@@ -1,5 +1,5 @@
 server:
-  port: ${IDENTITY_SERVICE_PORT:9001}
+  port: ${IDENTITY_SERVICE_PORT:9008}
   servlet:
     context-path: /identity
 spring:

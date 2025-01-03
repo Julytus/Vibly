@@ -17,7 +17,7 @@ import com.julytus.Apigateway.repositories.IdentityClient;
 @Configuration
 public class WebClientConfiguration {
     @Bean
-    WebClient webClient(@Value("${IDENTITY_SERVICE_URL:http://localhost:9001/identity}") String identityServiceUrl){
+    WebClient webClient(@Value("${IDENTITY_SERVICE_URL:http://localhost:9008/identity}") String identityServiceUrl){
         return WebClient.builder()
                 .baseUrl(identityServiceUrl)
                 .build();

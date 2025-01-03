@@ -38,8 +38,8 @@ public class MessageService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        kafkaTemplate.send("chat-messages", newMess);
         Message message = messageRepository.save(newMess);
+        kafkaTemplate.send("chat-messages", message);
 
         String receiverId = existingConversation.getUserId()
                 .stream()

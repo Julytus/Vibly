@@ -1,18 +1,16 @@
 package com.julytus.PostService.models.dto.request;
 
-import com.julytus.PostService.constants.PrivacyLevel;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.experimental.FieldDefaults;
+import java.util.List;
 
-@Getter
-@Setter
-@Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
+import org.springframework.web.multipart.MultipartFile;
+
+import com.julytus.PostService.constants.PrivacyLevel;
+
+import lombok.Data;
+
+@Data
 public class PostCreationRequest {
-    String content;
-    @Builder.Default
-    PrivacyLevel privacyLevel = PrivacyLevel.PUBLIC;
+    private String content;
+    private PrivacyLevel privacyLevel;
+    private List<MultipartFile> images;
 }

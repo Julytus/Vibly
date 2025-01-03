@@ -8,7 +8,6 @@ import com.julytus.profileService.repositories.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -32,7 +31,6 @@ public class ProfileService {
         return modelMapper.map(userProfile, UserProfileResponse.class);
     }
 
-    @Cacheable(value = "userProfiles", key = "#id", unless = "#result == null")
     public UserProfile getProfileById(String id) throws DataNotFoundException {
          return userProfileRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Profile not exist, id: " + id));

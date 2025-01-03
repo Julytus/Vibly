@@ -8,8 +8,11 @@
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/identity-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/post-processor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/post-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/profile-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/search/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/socket-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/timeline/src/main/java" charset="UTF-8" />
   </component>
 </project>

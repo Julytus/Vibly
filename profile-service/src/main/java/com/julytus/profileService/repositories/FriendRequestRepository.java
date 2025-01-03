@@ -50,4 +50,7 @@ public interface FriendRequestRepository extends Neo4jRepository<FriendRequest, 
            "DELETE r")
     void deleteFriendRelationship(@Param("userId") String userId, @Param("friendId") String friendId);
 
+    @Query("MATCH (user:UserProfile {id: $userId})-[:FRIEND]-(friend:UserProfile) " +
+           "RETURN DISTINCT friend.id")
+    List<String> getFollowersById(@Param("userId") String userId);
 } 

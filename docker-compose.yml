@@ -1,4 +1,66 @@
 services:
+  #Minio
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ./volumes/minio_data:/data
+    command: server --console-address ":9001" /data
+    networks:
+      - vibly-network
+  #Debezium
+  debezium:
+    image: debezium/connect:2.5
+    container_name: debezium
+    ports:
+      - "8083:8083"
+    environment:
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+    depends_on:
+      - kafka
+      - mongodb
+    networks:
+      - vibly-network
+  #ElasticSearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./volumes/elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - vibly-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - vibly-network
+
   #Redis
   redis:
     image: docker.io/redis:7.2.3
@@ -7,7 +69,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redis-data:/data
+      - ./volumes/redis-data:/data
     networks:
       - vibly-network
   #ProfileDb
@@ -20,7 +82,7 @@ services:
       - "7474:7474"  # Port for Neo4j Browser (web interface)
       - "7687:7687"  # Database communication
     volumes:
-      - neo4j_data:/data  # Lưu trữ dữ liệu Neo4j
+      - ./volumes/neo4j_data:/data  # Lưu trữ dữ liệu Neo4j
     networks:
       - vibly-network
     healthcheck:
@@ -57,7 +119,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=native
     volumes:
-      - ./config-service/src/main/resources/shared:/app/shared
+      - ./volumes/config-service/src/main/resources/shared:/app/shared
     networks:
       - vibly-network
     healthcheck:
@@ -229,7 +291,7 @@ services:
     networks:
       - vibly-network
     volumes:
-      - mongodb_data:/bitnami/mongodb
+      - ./volumes/mongodb_data:/bitnami/mongodb
 
   # zipkin:
   #   image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
@@ -304,6 +366,10 @@ volumes:
     driver: local
   uploads_data:
     driver: local
+  elasticsearch_data:
+    name: elasticsearch
+  minio_data:
+    name: minio
 
 
 networks:
