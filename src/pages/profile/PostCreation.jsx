@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import img7 from '/images/small/07.png';
 import img8 from '/images/small/08.png';
 import img9 from '/images/small/09.png';
 import { createPost } from '../../services/api';
-import PostProfile from './PostProfile';
 import '../../components/ImageGallery/imggrid.css';
 
+const PostCreation = ({ setNewPost, setPostLoading }) => {
+    const userProfile = useSelector((state) => state.account.userProfile);
+    const {
+        first_name: firstName,
+        avatar
+    } = userProfile;
 
-const PostCreation = ({
-    avatar,
-    firstName,
-    lastName,
-    userId
-}) => {
     const [postContent, setPostContent] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
     const [previewImages, setPreviewImages] = useState([]);
     const [loading2, setLoading2] = useState(false);
-    const [newPost, setNewPost] = useState(null);
-    const [postLoading, setPostLoading] = useState(false);
     const [privacyLevel, setPrivacyLevel] = useState('PUBLIC');
 
     const handleKeyDown = (e) => {
@@ -44,23 +42,15 @@ const PostCreation = ({
         setPreviewImages(prevPreviews => [...prevPreviews, ...newPreviews]);
     };
 
-
     const handleCreatePost = async (e) => {
         e.preventDefault();
+        
+        if (!postContent.trim() && selectedImages.length === 0) {
+            return;
+        }
 
         setPostLoading(true);
-
-        // Reset form và đóng modal
-        setPostContent('');
-        setSelectedImages([]);
-        setPreviewImages([]);
         setLoading2(true);
-
-        const modal = document.getElementById('post-modal');
-        const modalInstance = bootstrap.Modal.getInstance(modal);
-        if (modalInstance) {
-            modalInstance.hide();
-        }
 
         try {
             const formData = {
@@ -68,23 +58,32 @@ const PostCreation = ({
                 images: selectedImages,
                 privacyLevel: privacyLevel
             };
-            const newPost = await createPost(formData);
-            setLoading2(false);
 
-            // Cập nhật bài post với dữ liệu thật từ server
+            const newPostData = await createPost(formData);
+            
+            // Cập nhật state với post mới thông qua prop function
             setNewPost({
-                ...newPost,
+                ...newPostData,
                 isNew: true
             });
-            setPostLoading(false);
 
-            console.log("newPost:", newPost);
+            // Reset form
+            setPostContent('');
+            setSelectedImages([]);
+            setPreviewImages([]);
+            
+            // Đóng modal
+            const modal = document.getElementById('post-modal');
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
 
         } catch (error) {
             console.error('Error creating post:', error);
+        } finally {
             setLoading2(false);
-
-
+            setPostLoading(false);
         }
     };
 
@@ -107,7 +106,7 @@ const PostCreation = ({
     };
 
     return (
-        <div className="col-lg-8">
+        <div>
             <div id="post-modal-data" className="card mb-4">
                 <div className="card-header d-flex justify-content-between">
                     <div className="header-title">
@@ -332,14 +331,6 @@ const PostCreation = ({
                     </div>
                 </div>
             </div>
-            <PostProfile
-                firstName = {firstName}
-                lastName = {lastName}
-                avatar = {avatar}
-                userId = {userId}
-                newPost = {newPost}
-                postLoading = {postLoading}
-            />
         </div>
     );
 };
