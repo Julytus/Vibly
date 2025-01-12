@@ -56,14 +56,13 @@ public class PostProfileServiceImp implements PostProfileService {
             SearchHits<PostDocument> searchHits = elasticsearchOperations.search(query, PostDocument.class);
 
             return buildPageResponse(searchHits, page, size);
-        } else if (areFriends(userId, targetUserId)) {
-            privacyLevels.add(PrivacyLevel.FRIENDS);
+        } else {
+            if (areFriends(userId, targetUserId)) privacyLevels.add(PrivacyLevel.FRIENDS);
             NativeQuery query = queryBuilder.buildUserPostsQuery(targetUserId, privacyLevels, pageable);
             SearchHits<PostDocument> searchHits = elasticsearchOperations.search(query, PostDocument.class);
 
             return buildPageResponse(searchHits, page, size);
         }
-        return null;
     }
 
     private Boolean areFriends(String userId, String targetUserId) {

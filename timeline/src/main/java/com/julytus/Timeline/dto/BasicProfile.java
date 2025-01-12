@@ -1,26 +1,25 @@
-package com.julytus.profileService.models.dto.response;
+package com.julytus.Timeline.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.io.Serial;
+import java.io.Serializable;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+public class BasicProfile implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-public class UserProfileResponse {
     String id;
-    String username;
-    String email;
+    String avatar;
     @JsonProperty("first_name")
     String firstName;
     @JsonProperty("last_name")
     String lastName;
-    String avatar;
-    String background;
-    String role;
 }

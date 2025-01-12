@@ -57,26 +57,18 @@ public class TokenService {
 
     @Transactional
     public Token refreshToken(String refreshToken, User user) throws Exception {
-        if (refreshToken.equals("Hi!")) {
+        if (refreshToken.equals("Hi!") || refreshToken.isEmpty()) {
             throw new IdInvalidException("You do not have a refresh token in your cookie.");
-        }
-
-        Token existingToken = tokenRepository
-                .findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new DataNotFoundException("Token does not exist"));
-
-        if (existingToken.getRefreshExpirationDate().isBefore(LocalDateTime.now())) {
-            tokenRepository.delete(existingToken);
-            throw new ExpiredTokenException("Refresh token is expired");
         }
 
         String newAccessToken = jwtTokenUtil.createAccessToken(user);
         String newRefreshToken = jwtTokenUtil.createRefreshToken(user);
-        existingToken.setToken(newAccessToken);
-        existingToken.setExpirationDate(LocalDateTime.now().plusSeconds(expirationAccessToken));
-        existingToken.setRefreshToken(newRefreshToken);
-        existingToken.setRefreshExpirationDate(LocalDateTime.now().plusSeconds(expirationRefreshToken));
-        return tokenRepository.save(existingToken);
+
+        return Token
+                .builder()
+                .refreshToken(newRefreshToken)
+                .token(newAccessToken)
+                .build();
     }
 
     @Transactional

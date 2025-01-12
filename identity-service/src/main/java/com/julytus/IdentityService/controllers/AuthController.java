@@ -155,7 +155,6 @@ public class AuthController {
     private LoginResponse fromUserAndToken(User user, Token token) {
         return LoginResponse.builder()
                 .token(token.getToken())
-                .tokenType(token.getTokenType())
                 .refreshToken(token.getRefreshToken())
                 .username(user.getUsername())
                 .role(user.getAuthorities().toString())

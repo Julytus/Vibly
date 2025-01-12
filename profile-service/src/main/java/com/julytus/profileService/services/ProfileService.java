@@ -1,14 +1,17 @@
 package com.julytus.profileService.services;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.julytus.profileService.exceptions.DataNotFoundException;
 import com.julytus.profileService.models.dto.request.ProfileCreationRequest;
 import com.julytus.profileService.models.dto.response.UserProfileResponse;
 import com.julytus.profileService.models.entity.UserProfile;
 import com.julytus.profileService.repositories.UserProfileRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -16,10 +19,16 @@ import org.springframework.stereotype.Service;
 public class ProfileService {
     private final UserProfileRepository userProfileRepository;
     private final ModelMapper modelMapper;
+    
+    @Value("${image.avatar-default}")
+    private String defaultAvatar;
+    
+    @Value("${image.bg-default}")
+    private String defaultBackground;
 
     public UserProfileResponse newProfile(ProfileCreationRequest request) {
-        request.setAvatar("avatar-default.jpg");
-        request.setBackground("bg-default.jpg");
+        request.setAvatar(defaultAvatar);
+        request.setBackground(defaultBackground);
         UserProfile userProfile = modelMapper.map(request, UserProfile.class);
         userProfileRepository.save(userProfile);
         return modelMapper.map(userProfile, UserProfileResponse.class);
