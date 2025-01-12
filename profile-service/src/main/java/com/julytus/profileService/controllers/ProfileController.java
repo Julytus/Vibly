@@ -9,6 +9,7 @@ import com.julytus.profileService.services.ProfileInfoService;
 import com.julytus.profileService.services.ProfileService;
 import com.julytus.profileService.utils.SecurityUtil;
 import com.julytus.profileService.utils.UserLoginInfo;
+import io.minio.errors.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 import static org.springframework.http.ResponseEntity.*;
 
@@ -37,7 +40,7 @@ public class ProfileController {
     public ResponseEntity<UserProfileResponse> newProfile(
             @Valid @RequestBody ProfileCreationRequest request
             ) {
-        log.info("New Profile with username: " + request.getUsername());
+        log.info("New Profile with username: {}", request.getUsername());
         UserProfileResponse response = profileService.newProfile(request);
         return ok().body(response);
     }
@@ -46,7 +49,9 @@ public class ProfileController {
     public ResponseEntity<UserProfileResponse> updateAvatar(
             @RequestBody MultipartFile file,
             @PathVariable String userId
-    ) throws DataNotFoundException, IOException {
+    ) throws DataNotFoundException, IOException, ServerException,
+            InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         UserProfile userProfile = profileInfoService.setAvatar(userId, file);
         UserProfileResponse response = modelMapper.map(userProfile, UserProfileResponse.class);
         return ok().body(response);

@@ -37,3 +37,7 @@ minio:
   url: ${MINIO_URL:http://localhost:9000}
   access-key: ${MINIO_ACCESS_KEY:minioadmin}
   secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:profile}
+image:
+  avatar-default: https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png
+  bg-default: https://i.etsystatic.com/42754254/r/il/74909a/5325147165/il_570xN.5325147165_gumb.jpg

@@ -1,18 +1,29 @@
 package com.julytus.profileService.utils;
 
-import com.julytus.profileService.models.entity.UserProfile;
+import io.minio.*;
+import io.minio.errors.*;
+import io.minio.http.Method;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Service
 public class FileUtil {
+    private final MinioClient minioClient;
+
+    @Value("${minio.bucket}")
+    private String bucket;
+
     //Check ContentType
     public static boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
@@ -30,25 +41,43 @@ public class FileUtil {
             throw new IOException("Image must be smaller than 5MB");
         }
     }
+
+    @PostConstruct
+    public void init() {
+        try {
+            boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
+            if (!found) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //Update Image(Avatar or Background)
-    public static String updateImage(UserProfile userProfile,
-                                   MultipartFile file,
-                                   String uploadsFolder) throws IOException {
+    public String uploadImage(MultipartFile file)
+            throws IOException, ServerException, InsufficientDataException,
+            ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
         validateImageFile(file);
 
-        String fileName = userProfile.getId() + "_" + UUID.randomUUID() + "_" + StringUtils.cleanPath(
-                Objects.requireNonNull(file.getOriginalFilename()));
-        java.nio.file.Path uploadDir = java.nio.file.Paths.get(uploadsFolder);
+        String fileName = UUID.randomUUID() + "_"
+                + StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
 
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectory(uploadDir);
-        }
-
-        java.nio.file.Path destination = Paths.get(uploadDir.toString(), fileName);
-        try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
-        }
-        return fileName;
+        minioClient.putObject(
+                PutObjectArgs.builder()
+                        .bucket(bucket)
+                        .object(fileName)
+                        .stream(file.getInputStream(), file.getSize(), -1)
+                        .contentType(file.getContentType())
+                        .build()
+        );
+        return minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                        .bucket(bucket)
+                        .object(fileName)
+                        .method(Method.GET)
+                        .build());
     }
 
 }
