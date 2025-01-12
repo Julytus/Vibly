@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getProfileById, 
-    getAvatarById, 
-    getBackgroundById, 
-    openConversation 
-} from '../../services/api';
+import { getProfileById, openConversation } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setInitialState } from '../../redux/slices/sidebarSlice';
 import Loading from '../../components/loading';
@@ -15,8 +11,6 @@ import FriendRequestButton from '../../components/FriendRequestButton';
 const ProfilePage = () => {
     const { id } = useParams();
     const [profile, setProfile] = useState(null);
-    const [avatar, setAvatar] = useState(null);
-    const [background, setBackground] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const { userProfile } = useSelector((state) => state.account);
     const dispatch = useDispatch();
@@ -31,14 +25,7 @@ const ProfilePage = () => {
                 setIsLoading(true);
                 const profileData = await getProfileById(id);
                 setProfile(profileData);
-
-                const [avatarUrl, backgroundUrl] = await Promise.all([
-                    getAvatarById(id),
-                    getBackgroundById(id)
-                ]);
-                
-                setAvatar(avatarUrl);
-                setBackground(backgroundUrl);
+                console.log("profile", profileData);
             } catch (error) {
                 return <Error404 />;
             } finally {
@@ -71,8 +58,14 @@ const ProfilePage = () => {
                     <div className="header-for-bg">
                         <div className="background-header position-relative">
                             <img
-                                src={background}
+                                src={profile.background}
                                 className="img-fluid w-100"
+                                style={{
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    height: '500px',
+                                    width: '100%'
+                                }}
                                 alt="header-bg"
                                 loading="lazy"
                             />
@@ -90,7 +83,7 @@ const ProfilePage = () => {
                                             <div className="col-lg-2">
                                                 <div className="item1 ms-1">
                                                     <img
-                                                        src={avatar}
+                                                        src={profile.avatar}
                                                         className="img-fluid rounded profile-image object-cover"
                                                         alt="profile-image"
                                                         loading="lazy"
@@ -192,10 +185,7 @@ const ProfilePage = () => {
                             </div>
                         </div>
                         <Description 
-                            firstName={profile.first_name}
-                            lastName={profile.last_name}
-                            avatar={avatar}
-                            userId={profile.id}
+                            otherProfile={profile}
                         />
                     </div>
                 </div>

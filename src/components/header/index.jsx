@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { doLogoutAction } from '../../redux/account/accountSlice';
-import { callLogout, getAvatarById } from '../../services/api';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import BlogStore from './BlogStore';
 import ShoppingCart from './ShoppingCart';
 import FriendRequests from './FriendRequests';
@@ -12,17 +10,6 @@ import UserDropdown from './UserDropdown';
 
 const Header = () => {
   const user = useSelector(state => state.account.userProfile);
-  const [avatarUrl, setAvatarUrl] = useState('');
-
-  useEffect(() => {
-    const fetchAvatar = async () => {
-      if (user && user.id) {
-        const avatar = await getAvatarById(user.id);
-        setAvatarUrl(avatar);
-      }
-    };
-    fetchAvatar();
-  }, [user]);
 
   return (
     <div className="iq-top-navbar border-bottom">
@@ -61,7 +48,6 @@ const Header = () => {
             <Notifications />
             <UserDropdown 
               user={user}
-              avatarUrl={avatarUrl}
             />
           </ul>
         </div>

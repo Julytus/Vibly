@@ -106,41 +106,24 @@ export const getProfileById = async (id) => {
 
 export const createPost = async (postData) => {
   try {
-    console.log("1. Starting createPost with data:", postData);
+    const formData = new FormData();
+    formData.append('content', postData.content);
+    formData.append('privacyLevel', postData.privacyLevel || 'PUBLIC');
     
-    const response = await axios.post('/post/u', {
-      content: postData.content,
-      privacyLevel: postData.privacyLevel || 'PUBLIC'
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    console.log("2. Created post response:", response.data);
-
-    let finalResponse = response.data;
-    console.log("imgs:", postData.images);
-    console.log( postData.images.length)
     if (postData.images && postData.images.length > 0) {
-      console.log("3. Starting image upload");
-      
-      const formData = new FormData();
       postData.images.forEach(image => {
-        formData.append('files', image);
+        formData.append('images', image);
       });
-      console.log("4. FormData created:", formData);
-
-      try {
-        const uploadResponse = await axios.post(`/post/u/upload/${response.data.id}`, formData);
-        finalResponse = uploadResponse.data;
-        console.log("5. Upload response:", uploadResponse);
-      } catch (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw uploadError;
-      }
     }
 
-    return finalResponse;
+    const response = await axios.post('/post/u', formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    return response.data;
   } catch (error) {
     console.error('API createPost, Error:', error);
     throw error;
@@ -149,7 +132,7 @@ export const createPost = async (postData) => {
 
 export const getPostsByUserId = async (userId, page = 1, size = 4) => {
   try {
-    const response = await axios.get(`/post/u/${userId}`, {
+    const response = await axios.get(`/search/s/posts/user/${userId}`, {
       params: { page, size },
       headers: {
         'Authorization': `Bearer ${token}`
@@ -158,18 +141,6 @@ export const getPostsByUserId = async (userId, page = 1, size = 4) => {
     return response.data;
   } catch (error) {
     console.error('API getPostsByUserId, Error:', error);
-    throw error;
-  }
-};
-
-export const getPostImage = async (imageUrl) => {
-  try {
-    const response = await axios.get(`/post/u/img/${imageUrl}`, {
-      responseType: 'blob'
-    });
-    return URL.createObjectURL(response.data);
-  } catch (error) {
-    console.error('getPostImage, Error:', error);
     throw error;
   }
 };
@@ -374,4 +345,19 @@ export const getFriendRequests = async (page = 1, size = 4) => {
         console.error('API getFriendRequests, Error:', error);
         throw error;
     }
+};
+
+export const getTimeline = async (userId, page = 0, size = 10) => {
+  try {
+    const response = await axios.get(`/timeline/timelines/${userId}`, {
+      params: { page, size },
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API getTimeline, Error:', error);
+    throw error;
+  }
 };

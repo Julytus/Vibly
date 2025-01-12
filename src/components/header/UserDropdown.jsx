@@ -1,18 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { doLogoutAction } from '../../redux/account/accountSlice';
 import { callLogout } from '../../services/api';
 import { useDispatch } from 'react-redux';
 
-const UserDropdown = ({ user, avatarUrl }) => {
+const UserDropdown = ({ user }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const handleLogout = async (e) => {
     e.preventDefault();
     try {
         await callLogout();
         dispatch(doLogoutAction());
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        navigate('/login');
     } catch (error) {
         console.error('Logout failed:', error);
     }
@@ -21,7 +23,7 @@ const UserDropdown = ({ user, avatarUrl }) => {
   return (
     <li className="nav-item dropdown user-dropdown">
       <a href="#" className="d-flex align-items-center dropdown-toggle" id="drop-down-arrow" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <img src={avatarUrl} className="img-fluid rounded-circle avatar-48 border border-2 me-3" alt="user" loading="lazy" />
+        <img src={user?.avatar} className="img-fluid rounded-circle avatar-48 border border-2 me-3" alt="user" loading="lazy" />
       </a>
       <div className="sub-drop dropdown-menu caption-menu" aria-labelledby="drop-down-arrow">
         <div className="card shadow-none m-0">

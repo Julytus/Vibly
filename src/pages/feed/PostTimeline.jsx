@@ -1,45 +1,70 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
 import loader from '/images/page-img/page-load-loader.gif';
-import { getPostsByUserId } from '../../services/api';
+import { getTimeline } from '../../services/api';
 import ImageGallery from '../../components/ImageGallery/ImageGallery';
 import { dateHandler } from '../../utils/date';
 import TextWithTags from '../../components/ContentWithTags/TextWithTags';
 
-const PostProfile = ({
-    firstName,
-    lastName,
-    avatar,
-    userId,
+const PostTimeline = ({
     newPost,
     postLoading
 }) => {
+    const userProfile = useSelector((state) => state.account.userProfile);
     const [posts, setPosts] = useState([]);
     const [page, setPage] = useState(0);
     const [loading3, setLoading3] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const loaderRef = useRef(null);
 
+    useEffect(() => {
+        const loadInitialPosts = async () => {
+            try {
+                setLoading3(true);
+                const response = await getTimeline(userProfile.id, 0); // Bắt đầu với page = 0
+                
+                if (response && response.length > 0) {
+                    setPosts(response);
+                    setPage(0);
+                    if (response.length < 10) {
+                        setHasMore(false);
+                    }
+                } else {
+                    setHasMore(false);
+                }
+            } catch (error) {
+                console.error('Error loading initial timeline:', error);
+                setHasMore(false);
+            } finally {
+                setLoading3(false);
+            }
+        };
+
+        if (userProfile.id) {
+            loadInitialPosts();
+        }
+    }, [userProfile.id]);
+
     const loadMorePosts = async () => {
         if (loading3 || !hasMore) return;
+        
         try {
             setLoading3(true);
             const nextPage = page + 1;
-            // Delay 1s cho loading, để test hiển thị loader
-            // await new Promise(resolve => setTimeout(resolve, 1000));
             
-            const response = await getPostsByUserId(userId, nextPage);
+            const response = await getTimeline(userProfile.id, nextPage);
             
-            if (response.data && response.data.length > 0) {
-                setPosts(prevPosts => [...prevPosts, ...response.data]);
+            if (response && response.length > 0) {
+                setPosts(prevPosts => [...prevPosts, ...response]);
                 setPage(nextPage);
-                if (nextPage >= response.total_pages) {
+                if (response.length < 10) {
                     setHasMore(false);
                 }
             } else {
                 setHasMore(false);
             }
         } catch (error) {
-            console.error('Error loading more posts:', error);
+            console.error('Error loading timeline:', error);
             setHasMore(false);
         } finally {
             setLoading3(false);
@@ -51,7 +76,6 @@ const PostProfile = ({
             (entries) => {
                 const first = entries[0];
                 if (first.isIntersecting && hasMore && !loading3) {
-                    console.log("other profile", userId)
                     loadMorePosts();
                 }
             },
@@ -69,25 +93,21 @@ const PostProfile = ({
                 observer.unobserve(currentLoader);
             }
         };
-    }, [loading3, hasMore, page, userId]);
+    }, [loading3, hasMore, userProfile.id]);
 
     useEffect(() => {
-        if (newPost) {
-            console.log('Original newPost:', newPost);
-            if (postLoading) {
-                return;
-            }
-            setPosts(prevPosts => {
-                const formattedNewPost = {
-                    id: newPost.id,
-                    content: newPost.content,
-                    created_at: newPost.createdAt,
-                    image_urls: newPost.imageUrls,
-                    isNew: true
-                };
-                console.log('Formatted newPost:', formattedNewPost);
-                return [formattedNewPost, ...prevPosts];
-            });
+        if (newPost && !postLoading) {
+            setPosts(prevPosts => [{
+                id: newPost.id,
+                content: newPost.content,
+                created_at: newPost.createdAt,
+                image_urls: newPost.imageUrls,
+                userId: userProfile.id,
+                avatar: userProfile.avatar,
+                first_name: userProfile.first_name,
+                last_name: userProfile.last_name,
+                isNew: true
+            }, ...prevPosts]);
         }
     }, [newPost, postLoading]);
 
@@ -100,10 +120,10 @@ const PostProfile = ({
                             <li className="mb-2">
                                 <div className="d-flex justify-content-between">
                                     <div className="user-img me-3">
-                                        <img src={avatar} alt="userimg" className="avatar-60 rounded-circle img-fluid" loading="lazy" />
+                                        <img src={post.avatar} alt="userimg" className="avatar-60 rounded-circle img-fluid" loading="lazy" />
                                     </div>
                                     <div className="w-100 text-margin">
-                                        <h5>{firstName} {lastName}</h5>
+                                        <h5>{post.first_name} {post.last_name}</h5>
                                         <small className="d-flex align-items-center">
                                             <i className="material-symbols-outlined md-14 me-1">schedule</i> 
                                             {post.isNew ? 'Just now' : dateHandler(post.created_at)}
@@ -124,24 +144,6 @@ const PostProfile = ({
                                                 <div className="d-flex align-items-center">
                                                     <span className="material-symbols-outlined md-18">share</span>
                                                     <span className="card-text-1 ms-1">Share</span>
-                                                </div>
-                                            </div>
-                                            <span className="card-text-2">5.2k people love it</span>
-                                            <div className="d-flex justify-content-between align-items-center">
-                                                <span className="card-text-1 me-1">5.2k people love it</span>
-                                                <div className="iq-media-group ms-2">
-                                                    <a href="#" className="iq-media">
-                                                        <img className="img-fluid avatar-30 rounded-circle" src={avatar} alt="" loading="lazy" />
-                                                    </a>
-                                                    <a href="#" className="iq-media">
-                                                        <img className="img-fluid avatar-30 rounded-circle" src={avatar} alt="" loading="lazy" />
-                                                    </a>
-                                                    <a href="#" className="iq-media">
-                                                        <img className="img-fluid avatar-30 rounded-circle" src={avatar} alt="" loading="lazy" />
-                                                    </a>
-                                                    <a href="#" className="iq-media">
-                                                        <img className="img-fluid avatar-30 rounded-circle" src={avatar} alt="" loading="lazy" />
-                                                    </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -173,4 +175,4 @@ const PostProfile = ({
     );
 };
 
-export default PostProfile;
+export default PostTimeline;

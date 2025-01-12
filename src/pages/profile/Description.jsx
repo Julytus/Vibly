@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import PostCreation from './PostCreation';
+import PostProfile from './PostProfile';
 
-const Description = ({
-    firstName,
-    lastName,
-    avatar,
-    userId
-}) => {
+const Description = ({ otherProfile }) => {
+    const userProfile = useSelector((state) => state.account.userProfile);
+    const {
+        id: userId,
+        first_name: firstName,
+        last_name: lastName,
+        avatar
+    } = userProfile;
+
+    // Chuyển các state liên quan đến post từ PostCreation sang đây
+    const [newPost, setNewPost] = useState(null);
+    const [postLoading, setPostLoading] = useState(false);
+
     return (
         <div className="row">
             <div className="col-lg-4">
@@ -45,14 +54,23 @@ const Description = ({
                     </div>
                 </div>
             </div>
-            <PostCreation
-                avatar={avatar}
-                firstName={firstName}
-                lastName={lastName}
-                userId={userId}
-            />
+            <div className='col-lg-8'>
+                {userProfile.id === otherProfile.id && (
+                    <PostCreation 
+                        setNewPost={setNewPost}
+                        setPostLoading={setPostLoading}
+                    />
+                )}
+                <PostProfile
+                    firstName={otherProfile.first_name}
+                    lastName={otherProfile.last_name}
+                    avatar={otherProfile.avatar}
+                    userId={otherProfile.id}
+                    newPost={newPost}
+                    postLoading={postLoading}
+                />
+            </div>
         </div>
-        
     );
 };
 
