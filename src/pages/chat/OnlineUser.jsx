@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { getBasicProfileById, getAvatarById } from '../../services/api';
+import { getBasicProfileById } from '../../services/api';
 import { webSocketService } from '../../services/websocket';
 import 'swiper/css';
 
@@ -24,11 +24,10 @@ const OnlineUser = ({ currentUserId }) => {
                     activeUserIds.map(async (userId) => {
                         try {
                             const userData = await getBasicProfileById(userId);
-                            const avatar = await getAvatarById(userId);
                             return {
                                 id: userId,
                                 name: `${userData.first_name} ${userData.last_name}`,
-                                avatar: avatar
+                                avatar: userData.avatar
                             };
                         } catch (error) {
                             console.error(`Error fetching user data for ${userId}:`, error);

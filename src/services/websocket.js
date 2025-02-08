@@ -243,9 +243,19 @@ class WebSocketService {
                                 this.notificationHandlers.get('MESSAGE')?.(notification);
                                 break;
                             case 'POST':
-                                console.log('[WebSocket] Post notification:', notification.content);
+                                console.log('[WebSocket] Post notification:', notification);
                                 handlers?.onNewPost?.(notification);
                                 this.notificationHandlers.get('POST')?.(notification);
+                                break;
+                            case 'COMMENT':
+                                console.log('[WebSocket] COMMENT notification:', notification);
+                                handlers?.onNewPost?.(notification);
+                                this.notificationHandlers.get('COMMENT')?.(notification);
+                                break;
+                            case 'REACTION':
+                                console.log('[WebSocket] REACTION notification:', notification);
+                                handlers?.onNewPost?.(notification);
+                                this.notificationHandlers.get('REACTION')?.(notification);
                                 break;
                             case 'FRIEND_REQUEST':
                                 console.log('[WebSocket] Friend request notification:', notification);

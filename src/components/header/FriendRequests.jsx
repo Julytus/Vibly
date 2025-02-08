@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getFriendRequests, acceptFriendRequest, declineFriendRequest } from '../../services/api';
-import { getAvatarById } from '../../services/api';
 import { useSelector } from 'react-redux';
 
 const FriendRequests = () => {
@@ -17,17 +16,9 @@ const FriendRequests = () => {
         setLoading(true);
         const response = await getFriendRequests(page);
         console.log("getFriendRequest", response);
-
-        // Xử lý avatar cho mỗi notification
-        const notificationsWithAvatars = await Promise.all(
-          response.data.map(async (notification) => {
-            const avatarUrl = await getAvatarById(notification.sender_id);
-            return { ...notification, avatar: avatarUrl };
-          })
-        );
         
         setNotifications(prev => 
-          page === 1 ? notificationsWithAvatars : [...prev, ...notificationsWithAvatars]
+          page === 1 ? response.data : [...prev, ...response.data]
         );
       } catch (error) {
         console.error('Error fetching notifications:', error);
@@ -82,7 +73,7 @@ const FriendRequests = () => {
           <div className="d-flex align-items-center">
             <img 
               className="avatar-40 rounded-pill" 
-              src={notification.avatar || `/images/user/${notification.img}`} 
+              src={notification.img} 
               alt={notification.sender_name} 
               loading="lazy" 
             />
@@ -116,7 +107,7 @@ const FriendRequests = () => {
         <div className="d-flex align-items-center mb-4">
           <img 
             className="avatar-40 rounded-pill" 
-            src={notification.avatar || `/images/user/${notification.img}`}
+            src={notification.img}
             alt={notification.sender_name} 
             loading="lazy" 
           />

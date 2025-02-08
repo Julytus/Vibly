@@ -21,6 +21,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Sidebar from './components/sidebar';
 import SettingPanel from './components/SettingPanel';
 import ProfilePage from './pages/profile';
+import EditProfile from './pages/profile/edit';
 import MiniChatBox from './components/minichatbox';
 import Chat from './pages/chat';
 import { useWebSocket } from './hooks/useWebSocket';
@@ -102,6 +103,10 @@ export default function App() {
         {
           path: "profile/:id",
           element: <ProfilePage />,
+        },
+        {
+          path: "profile-edit",
+          element: <EditProfile />,
         }
       ]
     },

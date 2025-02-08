@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { getProfileById, openConversation } from '../../services/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setInitialState } from '../../redux/slices/sidebarSlice';
@@ -14,9 +14,15 @@ const ProfilePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const { userProfile } = useSelector((state) => state.account);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleOpenConversation = async () => {
-        const conversation = await openConversation(userProfile.id, profile.id);
+        try {
+            const conversation = await openConversation(userProfile.id, profile.id);
+            navigate(`/chat/${conversation.id}`);
+        } catch (error) {
+            console.error('Error opening conversation:', error);
+        }
     }
 
     useEffect(() => {

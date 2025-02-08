@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { useWebSocket } from '../../hooks/useWebSocket';
-import { getAvatarById } from '../../services/api';
 import './styles.css';
 
 const Toast = () => {
@@ -33,13 +32,11 @@ const Toast = () => {
         }, 300);
       }, 5000);
 
-      const avatarUrl = await getAvatarById(notification.sender_id);
-
       setNotifications(prev => [{
         id: combinedId,
         ...notification,
         originalId: notification.id,
-        avatar: avatarUrl,
+        avatar: notification.img,
         show: true,
         timeoutId: hideTimeoutId
       }, ...prev].slice(0, 5));
@@ -47,7 +44,7 @@ const Toast = () => {
       console.error('Error handling notification:', error);
       processedNotifications.current.delete(notification.id);
     }
-  }, []);
+  }, [userProfile]);
 
   const handleClose = useCallback((notificationId, e) => {
     e.stopPropagation();
@@ -73,10 +70,14 @@ const Toast = () => {
     if (userProfile?.id && webSocketService) {
       webSocketService.notificationHandlers.set('FRIEND_REQUEST', addNotification);
       webSocketService.notificationHandlers.set('REQUEST_ACCEPTED', addNotification);
+      webSocketService.notificationHandlers.set('REACTION', addNotification);
+      webSocketService.notificationHandlers.set('COMMENT', addNotification);
 
       return () => {
         webSocketService.notificationHandlers.delete('FRIEND_REQUEST');
         webSocketService.notificationHandlers.delete('REQUEST_ACCEPTED');
+        webSocketService.notificationHandlers.set('REACTION', addNotification);
+        webSocketService.notificationHandlers.set('COMMENT', addNotification);
         notifications.forEach(n => {
           if (n.timeoutId) clearTimeout(n.timeoutId);
         });
@@ -86,12 +87,13 @@ const Toast = () => {
   }, [userProfile?.id, webSocketService, addNotification]);
 
   const renderNotificationContent = useCallback((notification) => {
+    console.log("noti", notification)
     switch (notification.type) {
       case 'FRIEND_REQUEST':
         return (
           <>
             <img 
-              src={notification.avatar}
+              src={notification.img}
               alt={notification.sender_name}
               className="notification-avatar"
             />
@@ -110,10 +112,57 @@ const Toast = () => {
             </button>
           </>
         );
-      case 'REQUEST_ACCEPTED':
+      case 'COMMENT':
         return (
           <>
             <img 
+              src={notification.img}
+              alt={notification.sender_name}
+              className="notification-avatar"
+            />
+            <div className="notification-content">
+              <p className="notification-title">COMMENT</p>
+              <p className="notification-message">
+                {notification.sender_name} commented on your post.
+              </p>
+            </div>
+            <button
+              className="notification-close material-symbols-outlined"
+              onClick={(e) => handleClose(notification.id, e)}
+              type="button"
+            >
+              close
+            </button>
+          </>
+        );
+      case 'REACTION':
+        return (
+          <>
+            <img 
+              src={notification.img}
+              alt={notification.sender_name}
+              className="notification-avatar"
+            />
+            <div className="notification-content">
+              <p className="notification-title">REACTION</p>
+              <p className="notification-message">
+                {notification.sender_name} liked your post.
+              </p>
+            </div>
+            <button
+              className="notification-close material-symbols-outlined"
+              onClick={(e) => handleClose(notification.id, e)}
+              type="button"
+            >
+              close
+            </button>
+          </>
+        );
+
+      case 'REQUEST_ACCEPTED':
+        return (
+          <>
+            <img
               src={notification.avatar}
               alt={notification.sender_name}
               className="notification-avatar"

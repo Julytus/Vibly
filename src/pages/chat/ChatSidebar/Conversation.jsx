@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getBasicProfileById, getAvatarById } from '../../../services/api';
+import { getBasicProfileById } from '../../../services/api';
 import { dateHandler } from '../../../utils/date';
 import { webSocketService } from '../../../services/websocket';
 
@@ -10,7 +10,6 @@ const Conversation = ({
     onConversationClick, 
 }) => {
     const [otherUser, setOtherUser] = useState(null);
-    const [avatarUrl, setAvatarUrl] = useState(null);
     const [isOnline, setIsOnline] = useState(false);
 
     useEffect(() => {
@@ -19,9 +18,6 @@ const Conversation = ({
                 const otherUserId = conversation.userId.find(id => id !== currentUserId);
                 const userData = await getBasicProfileById(otherUserId);
                 setOtherUser(userData);
-                
-                const avatar = await getAvatarById(otherUserId);
-                setAvatarUrl(avatar);
 
                 // Kiểm tra trạng thái online ban đầu
                 setIsOnline(webSocketService.isUserActive(otherUserId));
@@ -65,7 +61,7 @@ const Conversation = ({
             >
                 <div className="position-relative">
                     <img 
-                        src={avatarUrl} 
+                        src={otherUser.avatar} 
                         alt={`avatar-${otherUser.username}`} 
                         className="avatar-48 object-cover rounded-circle" 
                     />

@@ -132,7 +132,7 @@ export const createPost = async (postData) => {
 
 export const getPostsByUserId = async (userId, page = 1, size = 4) => {
   try {
-    const response = await axios.get(`/search/s/posts/user/${userId}`, {
+    const response = await axios.get(`/post/u/${userId}`, {
       params: { page, size },
       headers: {
         'Authorization': `Bearer ${token}`
@@ -151,7 +151,8 @@ export const openConversation = async (senderId, receiverId) => {
     try {
         const response = await axios.post('/chat/conversation', {
             sender_id: senderId,
-            receiver_id: receiverId
+            receiver_id: receiverId,
+            token: `${token}`
         }, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -360,4 +361,139 @@ export const getTimeline = async (userId, page = 0, size = 10) => {
     console.error('API getTimeline, Error:', error);
     throw error;
   }
+};
+
+export const likePost = async (postId, firstName, lastName, avatar) => {
+  try {
+    const response = await axios.post('/post/like-post', {
+      post_id: postId,
+      first_name: firstName,
+      last_name: lastName,
+      avatar: avatar
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API likePost, Error:', error);
+    throw error;
+  }
+};
+
+export const unlikePost = async (postId) => {
+  try {
+    const response = await axios.delete(`/post/like-post/${postId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API unlikePost, Error:', error);
+    throw error;
+  }
+};
+
+export const getPostLikers = async (postId, page = 1, size = 10) => {
+  try {
+    const response = await axios.get(`/post/like-post/${postId}`, {
+      params: { page, size },
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('API getPostLikers, Error:', error);
+    throw error;
+  }
+};
+
+// Get comments for a post with pagination
+export const getPostComments = async (postId, page = 1, size = 3) => {
+    try {
+        const response = await axios.get(`/post/post-comment/${postId}`, {
+            params: {
+                page,
+                size
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        throw error;
+    }
+};
+
+// Add a new comment
+export const addComment = async (firstName, lastName, avatar, content, postId, parentCommentId = null) => {
+    try {
+        const response = await axios.post('/post/add-comment', {
+            first_name:firstName,
+            last_name: lastName,
+            avatar,
+            content,
+            postId,
+            parentCommentId
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+              }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error adding comment:', error);
+        throw error;
+    }
+};
+
+// Delete a comment
+export const deleteComment = async (commentId) => {
+    try {
+        const response = await axios.delete(`/post/delete-comment/${commentId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+              }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting comment:', error);
+        throw error;
+    }
+};
+
+// Thêm API updateProfile
+export const updateProfile = async (profileData) => {
+    try {
+        const response = await axios.put('/profile/users', profileData, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API updateProfile, Error:', error);
+        throw error;
+    }
+};
+
+// Thêm API updateAvatar
+export const updateAvatar = async (userId, file) => {
+    try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await axios.post(`/profile/users/avatar/${userId}`, formData, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('API updateAvatar, Error:', error);
+        throw error;
+    }
 };

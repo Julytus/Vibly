@@ -1,7 +1,7 @@
 import ChatHead from './ChatHead.jsx';
 import ChatBody from './ChatBody.jsx'; 
 import ChatFooter from './ChatFooter.jsx';
-import { getMessagesByConversationId, getAvatarById, getBasicProfileById, getConversationById } from '../../../services/api';
+import { getMessagesByConversationId, getBasicProfileById, getConversationById } from '../../../services/api';
 import { useEffect, useState } from 'react';
 import { webSocketService } from '../../../services/websocket';
 
@@ -10,9 +10,7 @@ const ChatMain = ({
     userProfile, 
 }) => {
     const [messages, setMessages] = useState([]);
-    const [myAvatar, setMyAvatar] = useState(null);
     const [otherUser, setOtherUser] = useState(null);
-    const [avatarUrl, setAvatarUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch conversation và user data
@@ -27,16 +25,9 @@ const ChatMain = ({
                     // Tìm ID của user khác trong conversation
                     const otherUserId = conversationData.userId.find(id => id !== userProfile.id);
                     
-                    // Fetch user data và avatar parallel
-                    const [userData, avatar, myAvatarUrl] = await Promise.all([
-                        getBasicProfileById(otherUserId),
-                        getAvatarById(otherUserId),
-                        getAvatarById(userProfile.id)
-                    ]);
-
+                    // Fetch user data
+                    const userData = await getBasicProfileById(otherUserId);
                     setOtherUser(userData);
-                    setAvatarUrl(avatar);
-                    setMyAvatar(myAvatarUrl);
 
                     // Fetch messages
                     const messagesResponse = await getMessagesByConversationId(conversationId);
@@ -102,13 +93,13 @@ const ChatMain = ({
                         <div className="card tab-pane mb-0 fade active show h-100" id="user-content-102" role="tabpanel" >
                             <ChatHead 
                                 otherUser={otherUser}
-                                otherAvatar={avatarUrl}
+                                otherAvatar={otherUser.avatar}
                             />
                             <ChatBody 
                                 messages={messages} 
                                 currentUserId={userProfile.id}
-                                myAvatar={myAvatar}
-                                otherAvatar={avatarUrl}
+                                myAvatar={userProfile.avatar}
+                                otherAvatar={otherUser.avatar}
                                 conversationId={conversationId}
                             />
                             <ChatFooter 
