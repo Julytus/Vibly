@@ -36,14 +36,14 @@ public class NotificationEvent {
     private String receiverName;
 
     private NotificationType type; // MESSAGE, POST, COMMENT, etc.
-    
+
     private String content;
-    
-    @JsonProperty("reference_id") 
+
+    @JsonProperty("reference_id")
     private String referenceId; // ID của message/post/comment
-    
+
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 
     private String img;
-} 
+}

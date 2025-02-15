@@ -6,7 +6,9 @@ import java.util.Objects;
 
 import com.julytus.event.dto.NotificationEvent;
 import com.julytus.event.dto.NotificationType;
+import com.julytus.profileService.models.dto.request.ConversationRequest;
 import com.julytus.profileService.models.dto.response.PageResponse;
+import com.julytus.profileService.repositories.HttpClient.ChatClient;
 import com.julytus.profileService.repositories.HttpClient.NotificationClient;
 import com.julytus.profileService.utils.SecurityUtil;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +34,7 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final ProfileService profileService;
     private final NotificationClient notificationClient;
+    private final ChatClient chatClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public boolean checkExistsFriendRelationship(String userId, String friendId) {
@@ -65,6 +68,7 @@ public class FriendService {
                 .id(request.getId())
                 .referenceId(request.getId())
                 .senderId(senderId)
+                .senderAvatar(sender.getAvatar())
                 .senderName(sender.getFirstName()
                         + " " + sender.getLastName())
                 .receiverId(receiverId)
@@ -117,6 +121,7 @@ public class FriendService {
                 .senderId(receiver.getId())
                 .senderName(receiver.getFirstName()
                         + " " + receiver.getLastName())
+                .senderAvatar(receiver.getAvatar())
                 .receiverId(sender.getId())
                 .receiverName(sender.getFirstName()
                         + " " + sender.getLastName())
@@ -136,10 +141,17 @@ public class FriendService {
                     friendRequest.getSender().getId() + " accepted friend request from "
                             + friendRequest.getReceiver().getId());
             newNotification.setType(NotificationType.REQUEST_ACCEPTED);
-            kafkaTemplate.send("friend-notifications", newNotification);
+//            kafkaTemplate.send("friend-notifications", newNotification);
             notificationClient.updateRequestAccepted(requestId);
 
             friendRequestRepository.deleteById(requestId);
+
+            ConversationRequest conversationRequest = ConversationRequest
+                    .builder()
+                    .receiverId(friendRequest.getReceiver().getId())
+                    .senderId(friendRequest.getSender().getId())
+                    .build();
+            chatClient.openOrCreateConversation(conversationRequest);
         }
         kafkaTemplate.send("notifications", newNotification);
         return null;

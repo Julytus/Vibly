@@ -1,9 +1,10 @@
 package com.julytus.PostService.repositories.HttpClient;
 
-import com.julytus.PostService.configurations.AuthenticationRequestInterceptor;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.julytus.PostService.configurations.AuthenticationRequestInterceptor;
 
 @FeignClient(
         name = "profile-service",

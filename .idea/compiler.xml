@@ -20,15 +20,24 @@
         <module name="notification-service" />
         <module name="ChatService" />
       </profile>
-      <profile name="Annotation profile for PostProcessor" enabled="true">
+      <profile name="Annotation profile for Timeline" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="Timeline" />
+        <module name="PostProcessor" />
+      </profile>
+      <profile name="Annotation profile for PostService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
-        <module name="Timeline" />
-        <module name="PostProcessor" />
         <module name="PostService" />
       </profile>
     </annotationProcessing>

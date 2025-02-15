@@ -9,11 +9,3 @@ spring:
     timeout: 60000
   cache:
     type: redis
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 5000
-        readTimeout: 5000
-      profile-service:
-        url: ${PROFILE_SERVICE_URL:http://localhost:9002/profile}

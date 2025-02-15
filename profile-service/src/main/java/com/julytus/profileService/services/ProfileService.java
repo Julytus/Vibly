@@ -34,6 +34,19 @@ public class ProfileService {
         return modelMapper.map(userProfile, UserProfileResponse.class);
     }
 
+    public UserProfileResponse updateProfile(ProfileCreationRequest request) throws DataNotFoundException {
+        UserProfile userProfile = userProfileRepository.findById(request.getId())
+                .orElseThrow(() -> new DataNotFoundException("Profile not exist, username: " + request.getId()));
+        userProfile.setCity(request.getCity());
+        userProfile.setDateOfBirth(request.getDateOfBirth());
+        userProfile.setFirstName(request.getFirstName());
+        userProfile.setLastName(request.getLastName());
+        userProfile.setGender(request.getGender());
+
+        userProfileRepository.save(userProfile);
+        return modelMapper.map(userProfile, UserProfileResponse.class);
+    }
+
     public UserProfileResponse getProfileByUsername(String username) throws DataNotFoundException {
         UserProfile userProfile = userProfileRepository.findByUsername(username)
                 .orElseThrow(() -> new DataNotFoundException("Profile not exist, username: " + username));
