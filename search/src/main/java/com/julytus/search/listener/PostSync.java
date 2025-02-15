@@ -1,4 +1,4 @@
-package com.julytus.search.DebeziumListener;
+package com.julytus.search.listener;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

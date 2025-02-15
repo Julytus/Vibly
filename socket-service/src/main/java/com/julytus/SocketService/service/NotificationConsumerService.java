@@ -32,4 +32,4 @@ public class NotificationConsumerService {
             log.error("Error message: {}", e.getMessage());
         }
     }
-} 
+}

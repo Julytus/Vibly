@@ -25,4 +25,5 @@ public class ProfileCreationRequest {
     @JsonProperty("dob")
     LocalDate dateOfBirth;
     String background;
+    String gender;
 }

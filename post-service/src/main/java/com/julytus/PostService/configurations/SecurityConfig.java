@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_ENDPOINTS = {"/**", "/test/**"};
+    private static final String[] PUBLIC_ENDPOINTS = {"/**", "/test/**", "**"};
 
     private final CustomJwtDecoder customJwtDecoder;
 

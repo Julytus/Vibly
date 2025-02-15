@@ -26,9 +26,6 @@ public class PostResponse {
     public PostResponse(
             String id,
             String userId,
-            String avatar,
-            String firstName,
-            String lastName,
             String content,
             List<String> images,
             LocalDateTime createdAt) {

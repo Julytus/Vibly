@@ -6,13 +6,16 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import com.julytus.PostService.exceptions.DataNotFoundException;
 import com.julytus.event.dto.PostEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.julytus.PostService.constants.PrivacyLevel;
@@ -47,6 +50,7 @@ public class PostService {
     @Value("${spring.kafka.topics.new-post}")
     private String newPostTopic;
 
+    @PreAuthorize("isAuthenticated()")
     public Post createPost(PostCreationRequest request) throws IOException, ServerException, 
             InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, 
             InvalidKeyException, XmlParserException, InvalidResponseException, InternalException {
@@ -72,23 +76,7 @@ public class PostService {
         return savedPost;
     }
 
-
-    //    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public PageResponse<PostResponse> getAll(int page, int size){
-        Sort sort = Sort.by("createdAt").descending();
-        Pageable pageable = PageRequest.of(page - 1, size, sort);
-        var pageData = postRepository.findAll(pageable);
-
-        return PageResponse.<PostResponse>builder()
-                .currentPage(page)
-                .pageSize(pageData.getSize())
-                .totalPages(pageData.getTotalPages())
-                .totalElements(pageData.getTotalElements())
-                .data(pageData.getContent().stream().map(PostMapper::toPostResponse).toList())
-                .build();
-    }
-
-    public PageResponse<PostResponse> getPostByUserId(int page, int size, String targetUserId) {
+    public PageResponse<PostResponse> getAllPostByUserId(int page, int size, String targetUserId) {
         String userId = SecurityUtil.getCurrentUserId();
         Sort sort = Sort.by("createdAt").descending();
         Pageable pageable = PageRequest.of(page - 1, size, sort);
@@ -112,6 +100,21 @@ public class PostService {
                 .totalElements(pageData.getTotalElements())
                 .data(pageData.getContent().stream().map(PostMapper::toPostResponse).toList())
                 .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public void deletePostById(String postId) throws Exception {
+        String userId = SecurityUtil.getCurrentUserId();
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new DataNotFoundException("POST_NOT_EXISTED"));
+
+        if (Objects.equals(userId, post.getUserId())) {
+            postRepository.delete(post);
+            return;
+        }
+
+        throw new Exception("DELETE_COMMENT_INVALID");
     }
 
     private List<PrivacyLevel> getAccessiblePrivacyLevels(boolean isSelfProfile, boolean isFriend) {

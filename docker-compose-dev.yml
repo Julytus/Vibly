@@ -8,6 +8,9 @@ services:
     ports:
       - "3000:80"
     restart: always
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=http://backend:8088
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
@@ -30,15 +33,57 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_SERVER_URL: "http://host.docker.internal:9000"
-      MINIO_BROWSER_REDIRECT_URL: "http://host.docker.internal:9001"
     volumes:
       - ./volumes/minio_data:/data
     command: server --console-address ":9001" /data
     networks:
       - vibly-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  #Debezium
+  debezium:
+    image: debezium/connect:2.5
+    container_name: debezium
+    ports:
+      - "8083:8083"
+    environment:
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+    depends_on:
+      - kafka
+      - mongodb
+    networks:
+      - vibly-network
+  #ElasticSearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./volumes/elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - vibly-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - vibly-network
 
   #Redis
   redis:
@@ -167,13 +212,9 @@ services:
       - PROFILE_SERVICE_PORT=9002
       - CONFIG_SERVER_URL=http://config-service:8888
       - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - NOTIFICATION_SERVICE_URL=http://notification-service:9003/notification
-      - CHAT_SERVICE_URL=http://chat-service:9005/chat
       - NEO4J_URI=bolt://neo4j:7687
-      - MINIO_URL=http://host.docker.internal:9000
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASSWORD=12345678
-      - KAFKA_SERVERS=kafka:9092
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
       - vibly-network
@@ -220,7 +261,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - CONFIG_SERVER_URL=http://config-service:8888
       - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - IDENTITY_SERVICE_URL=http://identity-service:9008/identity
+      - IDENTITY_SERVICE_URL=http://identity-service:9001/identity
     networks:
       - vibly-network
 
@@ -276,6 +317,22 @@ services:
     volumes:
       - ./volumes/mongodb_data:/bitnami/mongodb
 
+  # zipkin:
+  #   image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+  #   container_name: zipkin
+  #   # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+  #   environment:
+  #     - STORAGE_TYPE=mem
+  #     # Uncomment to enable self-tracing
+  #     # - SELF_TRACING_ENABLED=true
+  #     # Uncomment to increase heap size
+  #     # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
+  #   ports:
+  #     # Port used for the Zipkin UI and HTTP Api
+  #     - "9411:9411"
+  #   # Uncomment to enable debug logging
+  #   # command: --logging.level.zipkin2=DEBUG
+
   chat-service:
     build:
       context: ./chat-service
@@ -322,80 +379,6 @@ services:
       - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
       - KAFKA_SERVERS=kafka:9092
       - KAFKA_GROUP_ID=chat-group
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-    networks:
-      - vibly-network
-
-  post-service:
-    build:
-      context: ./post-service
-      dockerfile: Dockerfile
-    depends_on:
-      config-service:
-        condition: service_started
-      mongodb:
-        condition: service_healthy
-      discovery-server:
-        condition: service_started
-    ports:
-      - "9004:9004"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - CONFIG_SERVER_URL=http://config-service:8888
-      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - SPRING_DATA_MONGODB_URI=mongodb://root:root@mongodb:27017/post_service?authSource=admin
-      - KAFKA_SERVERS=kafka:9092
-      - PROFILE_SERVICE_URL=http://profile-service:9002/profile
-      - NOTIFICATION_SERVICE_URL=http://notification-service:9003/notification
-      - MINIO_URL=http://host.docker.internal:9000
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-    networks:
-      - vibly-network
-
-  post-processor:
-    build:
-      context: ./post-processor
-      dockerfile: Dockerfile
-    depends_on:
-      config-service:
-        condition: service_started
-      kafka:
-        condition: service_started
-      discovery-server:
-        condition: service_started
-    ports:
-      - "9696:9696"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - CONFIG_SERVER_URL=http://config-service:8888
-      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - KAFKA_SERVERS=kafka:9092
-      - REDIS_HOST=redis
-      - PROFILE_SERVICE_URL=http://profile-service:9002/profile
-      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
-    networks:
-      - vibly-network
-
-  timeline-service:
-    build:
-      context: ./timeline
-      dockerfile: Dockerfile
-    depends_on:
-      redis:
-        condition: service_started
-      config-service:
-        condition: service_started
-      discovery-server:
-        condition: service_started
-    ports:
-      - "9697:9697"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - CONFIG_SERVER_URL=http://config-service:8888
-      - DISCOVERY_SERVER_URL=http://discovery-server:8761/eureka/
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - PROFILE_SERVICE_URL=http://profile-service:9002/profile
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
       - vibly-network

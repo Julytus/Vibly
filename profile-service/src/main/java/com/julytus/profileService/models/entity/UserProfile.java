@@ -33,4 +33,5 @@ public class UserProfile {
     LocalDate dateOfBirth;
     String avatar;
     String background;
+    String gender;
 }

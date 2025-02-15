@@ -45,6 +45,14 @@ public class ProfileController {
         return ok().body(response);
     }
 
+    @PutMapping("")
+    public ResponseEntity<UserProfileResponse> updateProfile(
+            @Valid @RequestBody ProfileCreationRequest request
+    ) throws DataNotFoundException {
+        UserProfileResponse response = profileService.updateProfile(request);
+        return ok().body(response);
+    }
+
     @PostMapping("/avatar/{userId}")
     public ResponseEntity<UserProfileResponse> updateAvatar(
             @RequestBody MultipartFile file,
