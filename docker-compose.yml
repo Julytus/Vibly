@@ -30,15 +30,15 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-      MINIO_SERVER_URL: "http://host.docker.internal:9000"
-      MINIO_BROWSER_REDIRECT_URL: "http://host.docker.internal:9001"
+      MINIO_SERVER_URL: "http://${HOSTNAME}:9000"
+      MINIO_BROWSER_REDIRECT_URL: "http://${HOSTNAME}:9001"
     volumes:
       - ./volumes/minio_data:/data
     command: server --console-address ":9001" /data
     networks:
-      - vibly-network
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      vibly-network:
+        aliases:
+          - ${HOSTNAME}
 
   #Redis
   redis:
@@ -170,15 +170,14 @@ services:
       - NOTIFICATION_SERVICE_URL=http://notification-service:9003/notification
       - CHAT_SERVICE_URL=http://chat-service:9005/chat
       - NEO4J_URI=bolt://neo4j:7687
-      - MINIO_URL=http://host.docker.internal:9000
+      - MINIO_URL=http://${HOSTNAME}:9000
+      - MINIO_EXTERNAL_URL=http://localhost:9000
       - NEO4J_USERNAME=neo4j
       - NEO4J_PASSWORD=12345678
       - KAFKA_SERVERS=kafka:9092
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
       - vibly-network
-    volumes:
-      - ./uploads:/app/uploads
   notification-service:
     build:
       context: ./notification-service
@@ -347,7 +346,7 @@ services:
       - KAFKA_SERVERS=kafka:9092
       - PROFILE_SERVICE_URL=http://profile-service:9002/profile
       - NOTIFICATION_SERVICE_URL=http://notification-service:9003/notification
-      - MINIO_URL=http://host.docker.internal:9000
+      - MINIO_URL=http://${HOSTNAME}:9000
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
     networks:
       - vibly-network
