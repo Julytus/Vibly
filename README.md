@@ -42,13 +42,11 @@
         <tr valign="top">
             <td>
                 <img src="screenshots/profile.png"/>
-                <img src="screenshots/realtime.png"/>
-                <img src="screenshots/realtime2.png"/>
+                <img src="screenshots/timeline.png"/>
             </td>
             <td>
                 <img src="screenshots/chat.png"/>
-                <img src="screenshots/timeline.png"/>
-
+                <img src="screenshots/realtime.png.png"/>
             </td>
         </tr>
     </tbody>
