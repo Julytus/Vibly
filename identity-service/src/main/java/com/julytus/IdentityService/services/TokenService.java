@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.julytus.IdentityService.exceptions.DataNotFoundException;
-import com.julytus.IdentityService.exceptions.ExpiredTokenException;
 import com.julytus.IdentityService.exceptions.IdInvalidException;
 import com.julytus.IdentityService.models.entity.Token;
 import com.julytus.IdentityService.models.entity.User;
@@ -29,7 +28,6 @@ public class TokenService {
     @Value("${jwt.expiration-refresh-token}")
     private int expirationRefreshToken;
 
-    private final TokenRepository tokenRepository;
     private final JwtTokenUtil jwtTokenUtil;
 
     @Transactional
