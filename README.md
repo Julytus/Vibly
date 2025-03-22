@@ -46,7 +46,7 @@
             </td>
             <td>
                 <img src="screenshots/chat.png"/>
-                <img src="screenshots/realtime.png.png"/>
+                <img src="screenshots/realtime.png"/>
             </td>
         </tr>
     </tbody>
